@@ -25,57 +25,28 @@
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
+        .tab-content { display: none; }
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.45s ease-out;
+            animation: fadeIn 0.45s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
-        .cursor-blink {
-            animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+        .cursor-blink { animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
         .glass-card {
             background: rgba(30, 41, 59, 0.52);
@@ -85,6 +56,62 @@
 
         .project-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(34, 211, 238, 0.1);
+        }
+
+        /* --- Custom UI cho Hardware Lab (FPGA DIP Switches & LEDs) --- */
+        .hw-switch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .hw-switch {
+            position: relative;
+            width: 24px;
+            height: 48px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+
+        .hw-switch::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            width: 16px;
+            height: 20px;
+            background: #cbd5e1;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hw-switch.active::after {
+            bottom: 22px;
+            background: #22d3ee;
+            box-shadow: 0 -2px 4px rgba(34, 211, 238, 0.4);
+        }
+
+        .hw-led {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0f172a;
+            border: 2px solid #334155;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.15s;
+        }
+
+        .hw-led.on {
+            background: #22d3ee;
+            border-color: #67e8f9;
+            box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee, inset 0 0 4px #fff;
         }
     </style>
 </head>
@@ -106,11 +133,14 @@
                         Trung<span class="text-cyan-400">.</span>IC
                     </span>
                 </div>
-
                 <nav class="space-y-2 px-2 md:px-4" id="nav-desktop"></nav>
             </div>
 
             <div class="px-4 md:px-8 space-y-4">
+                <a href="#" class="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-200 transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span class="hidden md:block">Download Resume</span>
+                </a>
                 <a href="https://github.com/trungpham141205" target="_blank"
                    class="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-500/50 rounded-lg text-sm text-slate-400 hover:text-cyan-400 transition-colors">
                     <i data-lucide="github" class="w-4 h-4"></i>
@@ -127,11 +157,10 @@
 
             <!-- HOME -->
             <section id="tab-home" class="tab-content active space-y-12">
-
                 <div class="space-y-6">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-300 text-xs font-mono">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        Digital IC / RTL / FPGA Portfolio
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Status: Open to Work
                     </div>
 
                     <h1 class="text-4xl md:text-6xl font-bold text-slate-100 font-mono tracking-tight leading-tight">
@@ -153,86 +182,62 @@
                     </p>
 
                     <div class="flex flex-wrap gap-3">
-                        <button onclick="switchTab('projects')" class="px-5 py-3 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors flex items-center gap-2">
-                            View Projects
+                        <button onclick="switchTab('projects')" class="px-5 py-3 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                            View RTL Projects
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </button>
 
-                        <a href="https://github.com/trungpham141205" target="_blank"
-                           class="px-5 py-3 rounded-lg border border-slate-700 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-2">
-                            GitHub
-                            <i data-lucide="external-link" class="w-4 h-4"></i>
-                        </a>
+                        <button onclick="switchTab('lab')" class="px-5 py-3 rounded-lg border border-slate-600 bg-slate-800/50 text-slate-200 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-2">
+                            <i data-lucide="monitor-play" class="w-4 h-4"></i>
+                            Interactive Lab
+                        </button>
                     </div>
 
-                    <!-- Console -->
-                    <div class="font-mono text-cyan-400 bg-slate-950/80 p-6 rounded-xl border border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.08)] h-48 flex flex-col justify-end max-w-3xl">
-                        <div id="typing-text" class="whitespace-pre-line"></div>
+                    <!-- Console Animation -->
+                    <div class="font-mono text-cyan-400 bg-slate-950/90 p-6 rounded-xl border border-slate-700 shadow-[0_0_20px_rgba(34,211,238,0.05)] h-48 flex flex-col justify-end max-w-3xl relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-emerald-500"></div>
+                        <div class="absolute top-2 right-4 flex gap-1.5">
+                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                        </div>
+                        <div id="typing-text" class="whitespace-pre-line text-sm md:text-base"></div>
                     </div>
                 </div>
 
                 <!-- Highlights -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6 rounded-xl">
-                        <i data-lucide="binary" class="w-10 h-10 text-cyan-400 mb-4"></i>
+                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-cyan-500">
+                        <i data-lucide="binary" class="w-8 h-8 text-cyan-400 mb-4"></i>
                         <h3 class="text-xl font-bold text-slate-100 mb-2">RTL Design</h3>
-                        <p class="text-sm text-slate-400">
-                            Verilog/SystemVerilog modules including adders, registers, FSMs, and CPU datapath blocks.
-                        </p>
+                        <p class="text-sm text-slate-400">Verilog/SystemVerilog modules including adders, registers, FSMs, and CPU datapath blocks.</p>
                     </div>
-
-                    <div class="glass-card p-6 rounded-xl">
-                        <i data-lucide="workflow" class="w-10 h-10 text-emerald-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Verification Mindset</h3>
-                        <p class="text-sm text-slate-400">
-                            Testbench-driven learning with expected results, corner cases, waveform inspection, and timing awareness.
-                        </p>
+                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-emerald-500">
+                        <i data-lucide="workflow" class="w-8 h-8 text-emerald-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Verification</h3>
+                        <p class="text-sm text-slate-400">Testbench-driven learning, expected results checking, corner cases, and waveform inspection.</p>
                     </div>
-
-                    <div class="glass-card p-6 rounded-xl">
-                        <i data-lucide="cpu" class="w-10 h-10 text-violet-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">CPU / SoC Direction</h3>
-                        <p class="text-sm text-slate-400">
-                            Current focus on RV32I single-cycle CPU, memory-mapped architecture, and future secure SoC integration.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Learning Stack -->
-                <div class="glass-card rounded-xl p-6">
-                    <h3 class="text-2xl font-bold text-slate-100 mb-5 flex items-center gap-2">
-                        <i data-lucide="layers" class="w-6 h-6 text-cyan-400"></i>
-                        Technical Stack
-                    </h3>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-mono">
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">Verilog</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">SystemVerilog</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">RTL Design</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">Testbench</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">FSM</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">RISC-V RV32I</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">FPGA Flow</div>
-                        <div class="bg-slate-950/60 border border-slate-700 rounded-lg p-4">ASIC Mindset</div>
+                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-violet-500">
+                        <i data-lucide="cpu" class="w-8 h-8 text-violet-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
+                        <p class="text-sm text-slate-400">Focus on RV32I single-cycle CPU, memory-mapped architecture, and future SoC integration.</p>
                     </div>
                 </div>
             </section>
 
             <!-- PROJECTS -->
             <section id="tab-projects" class="tab-content space-y-8">
-                <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">
-                        Project Portfolio
-                    </h2>
-                    <p class="text-slate-400 mt-3 max-w-3xl">
-                        Selected projects from my GitHub, organized as a practical learning path:
-                        from basic combinational circuits to sequential logic, FSM, arithmetic design,
-                        CPU architecture, and early SoC exploration.
-                    </p>
+                <div class="border-b border-slate-800 pb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Project Portfolio</h2>
+                        <p class="text-slate-400 mt-3 max-w-2xl">
+                            A curated list of my GitHub repositories demonstrating my progression from basic combinatorial logic to full system architectures.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Filter Buttons -->
-                <div class="flex flex-wrap gap-3" id="filter-buttons"></div>
+                <div class="flex flex-wrap gap-2" id="filter-buttons"></div>
 
                 <!-- Project Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="project-grid"></div>
@@ -241,128 +246,342 @@
             <!-- ROADMAP -->
             <section id="tab-roadmap" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">
-                        Learning Roadmap
-                    </h2>
-                    <p class="text-slate-400 mt-3 max-w-3xl">
-                        My portfolio is structured as an engineering progression, not just a list of small circuits.
-                        Each project should prove one design skill clearly.
-                    </p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Learning Roadmap</h2>
+                    <p class="text-slate-400 mt-3 max-w-3xl">Structured as an engineering progression. Each phase builds upon the previous one to construct complex hardware systems.</p>
                 </div>
-
-                <div class="space-y-6">
-                    <div class="glass-card rounded-xl p-6 border-l-4 border-cyan-400">
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Phase 1 — Combinational RTL Foundation</h3>
-                        <p class="text-slate-400 text-sm">
-                            Half Adder, Full Adder, Ripple Carry Adder, Carry Lookahead Adder.
-                            Main focus: Boolean logic, datapath composition, propagation delay, and testbench checking.
-                        </p>
+                
+                <div class="relative border-l-2 border-slate-800 ml-3 md:ml-6 space-y-8 pb-8">
+                    <div class="relative pl-8 md:pl-12">
+                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-cyan-500"></div>
+                        <div class="glass-card rounded-xl p-6">
+                            <span class="text-xs font-mono text-cyan-400 mb-2 block">Phase 1</span>
+                            <h3 class="text-xl font-bold text-slate-100 mb-2">Combinational RTL Foundation</h3>
+                            <p class="text-slate-400 text-sm">Half Adder, Full Adder, Ripple Carry Adder, Carry Lookahead Adder. Focus: Boolean logic, datapath composition, propagation delay.</p>
+                        </div>
                     </div>
 
-                    <div class="glass-card rounded-xl p-6 border-l-4 border-emerald-400">
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Phase 2 — Sequential Logic & Timing</h3>
-                        <p class="text-slate-400 text-sm">
-                            SIPO register and timing-aware designs.
-                            Main focus: flip-flops, reset behavior, setup/hold thinking, waveform reading, and timing validation.
-                        </p>
+                    <div class="relative pl-8 md:pl-12">
+                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-emerald-500"></div>
+                        <div class="glass-card rounded-xl p-6">
+                            <span class="text-xs font-mono text-emerald-400 mb-2 block">Phase 2</span>
+                            <h3 class="text-xl font-bold text-slate-100 mb-2">Sequential Logic & Timing</h3>
+                            <p class="text-slate-400 text-sm">SIPO register and timing-aware designs. Focus: flip-flops, reset behavior, setup/hold thinking, waveform reading.</p>
+                        </div>
                     </div>
 
-                    <div class="glass-card rounded-xl p-6 border-l-4 border-yellow-400">
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Phase 3 — FSM Design</h3>
-                        <p class="text-slate-400 text-sm">
-                            Traffic Light Controller.
-                            Main focus: state definition, next-state logic, output logic, counter-based timing, and clean RTL partitioning.
-                        </p>
+                    <div class="relative pl-8 md:pl-12">
+                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-yellow-500"></div>
+                        <div class="glass-card rounded-xl p-6">
+                            <span class="text-xs font-mono text-yellow-400 mb-2 block">Phase 3</span>
+                            <h3 class="text-xl font-bold text-slate-100 mb-2">FSM Design</h3>
+                            <p class="text-slate-400 text-sm">Traffic Light Controller. Focus: state definition, next-state logic, counter-based timing, clean RTL partitioning.</p>
+                        </div>
                     </div>
 
-                    <div class="glass-card rounded-xl p-6 border-l-4 border-violet-400">
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Phase 4 — CPU Architecture</h3>
-                        <p class="text-slate-400 text-sm">
-                            RV32I Single-Cycle CPU.
-                            Main focus: instruction fetch, decode, ALU control, register file, memory access, and processor datapath integration.
-                        </p>
-                    </div>
-
-                    <div class="glass-card rounded-xl p-6 border-l-4 border-pink-400">
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Phase 5 — SoC Direction</h3>
-                        <p class="text-slate-400 text-sm">
-                            SoC-RV32I-CNN and future secure SoC projects.
-                            Main focus: memory-mapped architecture, accelerator integration, bus interface thinking, and system-level verification.
-                        </p>
+                    <div class="relative pl-8 md:pl-12">
+                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-violet-500"></div>
+                        <div class="glass-card rounded-xl p-6">
+                            <span class="text-xs font-mono text-violet-400 mb-2 block">Phase 4</span>
+                            <h3 class="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
+                            <p class="text-slate-400 text-sm">RV32I Single-Cycle CPU. Focus: instruction fetch, decode, ALU control, register file, memory access.</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- LAB -->
+            <!-- LAB (NÂNG CẤP RTL VIEW & MULTI-MODULES) -->
             <section id="tab-lab" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">
-                        Digital Lab
-                    </h2>
-                    <p class="text-slate-400 mt-3">
-                        Small interactive section to make the portfolio feel like a hardware lab notebook.
-                    </p>
-                </div>
-
-                <div class="glass-card rounded-xl p-6 font-mono">
-                    <h3 class="text-xl font-bold text-slate-100 mb-4">
-                        4-bit ALU Mini Simulator
-                    </h3>
-
-                    <p class="text-slate-400 text-sm mb-6">
-                        Demo values are fixed for UI demonstration. Later this section can be upgraded with real binary input fields.
-                    </p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <label class="block text-xs text-slate-500 mb-2">A [3:0]</label>
-                            <input id="alu-a" value="0101" maxlength="4"
-                                   class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-cyan-400 outline-none focus:border-cyan-400">
+                            <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Digital Lab</h2>
+                            <p class="text-slate-400 mt-3">
+                                Interactive RTL simulation. Select a module below to test its functionality.
+                            </p>
                         </div>
-
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-2">B [3:0]</label>
-                            <input id="alu-b" value="0011" maxlength="4"
-                                   class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-emerald-400 outline-none focus:border-emerald-400">
+                        
+                        <!-- Menu Chọn Lab Module -->
+                        <div class="bg-slate-900 p-1.5 rounded-lg border border-slate-700 flex gap-1 overflow-x-auto" id="lab-module-menu">
+                            <button onclick="switchLabModule('alu')" id="btn-mod-alu" class="lab-nav-btn px-4 py-2 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors whitespace-nowrap">
+                                4-bit ALU
+                            </button>
+                            <button onclick="switchLabModule('fsm')" id="btn-mod-fsm" class="lab-nav-btn px-4 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm border border-transparent transition-colors whitespace-nowrap">
+                                Traffic Light FSM
+                            </button>
+                            <!-- [AI-MARKER: Thêm các nút bấm module mới vào đây trong tương lai] -->
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex flex-wrap gap-3 mb-6">
-                        <button onclick="calculateALU('AND')" class="px-4 py-2 bg-slate-950 border border-slate-700 rounded text-cyan-400 hover:bg-slate-800">AND</button>
-                        <button onclick="calculateALU('OR')" class="px-4 py-2 bg-slate-950 border border-slate-700 rounded text-cyan-400 hover:bg-slate-800">OR</button>
-                        <button onclick="calculateALU('XOR')" class="px-4 py-2 bg-slate-950 border border-slate-700 rounded text-cyan-400 hover:bg-slate-800">XOR</button>
-                        <button onclick="calculateALU('ADD')" class="px-4 py-2 bg-slate-950 border border-slate-700 rounded text-emerald-400 hover:bg-slate-800">ADD</button>
-                    </div>
+                <!-- MODULE 1: 4-BIT ALU -->
+                <div id="lab-module-alu" class="lab-module block">
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <!-- LEFT COLUMN: INTERACTIVE UI (FPGA Board) -->
+                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full">
+                            <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
+                            
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
+                                        FPGA Interface View
+                                    </h3>
+                                </div>
+                                
+                                <!-- Op Selector -->
+                                <div class="bg-slate-900 p-2 rounded-lg border border-slate-700 flex gap-2">
+                                    <button onclick="setOperation('AND')" id="op-AND" class="px-3 py-1.5 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors">AND</button>
+                                    <button onclick="setOperation('OR')" id="op-OR" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">OR</button>
+                                    <button onclick="setOperation('XOR')" id="op-XOR" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">XOR</button>
+                                    <button onclick="setOperation('ADD')" id="op-ADD" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">ADD</button>
+                                </div>
+                            </div>
 
-                    <div class="bg-black p-5 rounded-lg border border-slate-700 text-center">
-                        <span class="text-xs text-slate-500">Output [3:0]</span>
-                        <br>
-                        <span id="alu-out" class="text-4xl font-bold text-cyan-400">0000</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 flex-1">
+                                <!-- Input A -->
+                                <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-sm text-slate-400 font-bold">Input A [3:0]</span>
+                                        <span id="val-a-dec" class="text-xs text-slate-500">Dec: 0</span>
+                                    </div>
+                                    <div class="flex justify-between px-2">
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-3" onclick="toggleSwitch('a', 3)"></div><span class="text-[10px] text-slate-500 mt-1">A3</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-2" onclick="toggleSwitch('a', 2)"></div><span class="text-[10px] text-slate-500 mt-1">A2</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-1" onclick="toggleSwitch('a', 1)"></div><span class="text-[10px] text-slate-500 mt-1">A1</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-0" onclick="toggleSwitch('a', 0)"></div><span class="text-[10px] text-slate-500 mt-1">A0</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Input B -->
+                                <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-sm text-slate-400 font-bold">Input B [3:0]</span>
+                                        <span id="val-b-dec" class="text-xs text-slate-500">Dec: 0</span>
+                                    </div>
+                                    <div class="flex justify-between px-2">
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-3" onclick="toggleSwitch('b', 3)"></div><span class="text-[10px] text-slate-500 mt-1">B3</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-2" onclick="toggleSwitch('b', 2)"></div><span class="text-[10px] text-slate-500 mt-1">B2</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-1" onclick="toggleSwitch('b', 1)"></div><span class="text-[10px] text-slate-500 mt-1">B1</span></div>
+                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-0" onclick="toggleSwitch('b', 0)"></div><span class="text-[10px] text-slate-500 mt-1">B0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Output LEDs -->
+                            <div class="bg-[#0a0f18] p-6 rounded-xl border border-slate-700 shadow-inner flex flex-col items-center">
+                                <span class="text-sm text-slate-400 mb-6 font-bold flex items-center gap-2">
+                                    <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
+                                    Result Output (LEDs)
+                                </span>
+                                
+                                <div class="flex gap-6 md:gap-8">
+                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-cout"></div><span class="text-[10px] text-slate-500">COUT</span></div>
+                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-3"></div><span class="text-[10px] text-slate-500">O3</span></div>
+                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-2"></div><span class="text-[10px] text-slate-500">O2</span></div>
+                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-1"></div><span class="text-[10px] text-slate-500">O1</span></div>
+                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-0"></div><span class="text-[10px] text-slate-500">O0</span></div>
+                                </div>
+
+                                <div class="mt-6 text-center">
+                                    <span class="text-xs text-slate-500">Binary: </span>
+                                    <span id="out-bin-text" class="text-cyan-400 font-bold ml-1 tracking-widest">00000</span>
+                                    <span class="text-xs text-slate-500 ml-4">Decimal: </span>
+                                    <span id="out-dec-text" class="text-emerald-400 font-bold ml-1">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: ENGINEERING VIEW (Verilog & Schematic) -->
+                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                            <!-- IDE Header -->
+                            <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
+                                <button onclick="switchLabTab('alu', 'verilog')" id="btn-alu-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
+                                    <i data-lucide="file-code-2" class="w-4 h-4"></i> alu_4bit.v
+                                </button>
+                                <button onclick="switchLabTab('alu', 'schematic')" id="btn-alu-schematic" class="px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors">
+                                    <i data-lucide="git-merge" class="w-4 h-4"></i> RTL_Schematic
+                                </button>
+                            </div>
+
+                            <div id="content-alu-verilog" class="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
+<pre><code><span class="text-pink-400">module</span> <span class="text-emerald-400">alu_4bit</span> (
+    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[3:0]</span> a,
+    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[3:0]</span> b,
+    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[1:0]</span> alu_sel,
+    <span class="text-cyan-400">output</span> <span class="text-pink-400">reg</span> <span class="text-slate-400">[3:0]</span> result,
+    <span class="text-cyan-400">output</span> <span class="text-pink-400">reg</span>       carry_out
+);
+    <span class="text-cyan-400">wire</span> <span class="text-slate-400">[4:0]</span> add_res;
+    <span class="text-cyan-400">assign</span> add_res = a + b;
+
+    <span class="text-pink-400">always</span> @(<span class="text-pink-400">*</span>) <span class="text-pink-400">begin</span>
+        result    = <span class="text-orange-400">4'b0000</span>;
+        carry_out = <span class="text-orange-400">1'b0</span>;
+        <span class="text-pink-400">case</span> (alu_sel)
+            <span class="text-orange-400">2'b00</span>: result = a &amp; b;
+            <span class="text-orange-400">2'b01</span>: result = a | b;
+            <span class="text-orange-400">2'b10</span>: result = a ^ b;
+            <span class="text-orange-400">2'b11</span>: <span class="text-pink-400">begin</span>
+                result    = add_res<span class="text-slate-400">[3:0]</span>;
+                carry_out = add_res<span class="text-slate-400">[4]</span>;
+            <span class="text-pink-400">end</span>
+        <span class="text-pink-400">endcase</span>
+    <span class="text-pink-400">end</span>
+<span class="text-pink-400">endmodule</span></code></pre>
+                            </div>
+
+                            <div id="content-alu-schematic" class="hidden p-6 flex-1 flex items-center justify-center bg-slate-900/50">
+                                <svg width="300" height="300" viewBox="0 0 300 300" class="text-slate-400">
+                                    <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" stroke-width="2"/>
+                                    <text x="80" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">A [3:0]</text>
+                                    <path d="M 75 70 L 85 75 L 75 80" fill="none" stroke="currentColor"/>
+                                    <line x1="220" y1="50" x2="220" y2="90" stroke="currentColor" stroke-width="2"/>
+                                    <text x="220" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">B [3:0]</text>
+                                    <path d="M 215 70 L 225 75 L 215 80" fill="none" stroke="currentColor"/>
+                                    <line x1="20" y1="150" x2="60" y2="150" stroke="currentColor" stroke-width="2"/>
+                                    <text x="40" y="140" text-anchor="middle" fill="#38bdf8" class="font-mono text-xs">alu_sel</text>
+                                    <polygon points="60,90 240,90 190,210 160,210 150,180 140,210 110,210" fill="#1e293b" stroke="#22d3ee" stroke-width="3"/>
+                                    <text x="150" y="140" text-anchor="middle" fill="#22d3ee" class="font-bold text-xl">ALU</text>
+                                    <line x1="150" y1="210" x2="150" y2="260" stroke="currentColor" stroke-width="2"/>
+                                    <text x="150" y="275" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">result</text>
+                                    <line x1="200" y1="185" x2="250" y2="185" stroke="currentColor" stroke-width="2"/>
+                                    <text x="250" y="175" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">cout</text>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- MODULE 2: TRAFFIC LIGHT FSM -->
+                <div id="lab-module-fsm" class="lab-module hidden">
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <!-- LEFT COLUMN: INTERACTIVE UI -->
+                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full">
+                            <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
+                            
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="traffic-cone" class="w-5 h-5 text-yellow-400"></i>
+                                        Traffic Light Controller
+                                    </h3>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="tickFSM()" class="px-4 py-2 rounded bg-yellow-900/50 text-yellow-400 hover:bg-yellow-800/60 border border-yellow-800 text-sm transition-colors flex items-center gap-2">
+                                        <i data-lucide="clock" class="w-4 h-4"></i> CLK Tick
+                                    </button>
+                                    <button onclick="resetFSM()" class="px-3 py-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm transition-colors">
+                                        RST
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 flex flex-col items-center justify-center mb-8">
+                                <div class="bg-[#0a0f18] p-8 rounded-full border border-slate-700 shadow-inner flex flex-col gap-6">
+                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-red" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
+                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-yellow" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
+                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-green" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center">
+                                <span class="text-sm text-slate-400 block mb-1">Current State Register</span>
+                                <span id="fsm-state-text" class="text-xl font-bold text-yellow-400 tracking-widest">S_RED</span>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: ENGINEERING VIEW -->
+                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                            <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
+                                <button onclick="switchLabTab('fsm', 'verilog')" id="btn-fsm-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
+                                    <i data-lucide="file-code-2" class="w-4 h-4"></i> traffic_fsm.v
+                                </button>
+                                <button onclick="switchLabTab('fsm', 'schematic')" id="btn-fsm-schematic" class="px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors">
+                                    <i data-lucide="git-merge" class="w-4 h-4"></i> State_Diagram
+                                </button>
+                            </div>
+
+                            <div id="content-fsm-verilog" class="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
+<pre><code><span class="text-pink-400">module</span> <span class="text-emerald-400">traffic_fsm</span> (
+    <span class="text-cyan-400">input</span> clk,
+    <span class="text-cyan-400">input</span> rst_n,
+    <span class="text-cyan-400">output</span> <span class="text-pink-400">reg</span> red, yellow, green
+);
+    <span class="text-pink-400">parameter</span> S_RED = <span class="text-orange-400">2'b00</span>, S_GREEN = <span class="text-orange-400">2'b01</span>, S_YELLOW = <span class="text-orange-400">2'b10</span>;
+    <span class="text-pink-400">reg</span> <span class="text-slate-400">[1:0]</span> state, next_state;
+
+    <span class="text-pink-400">always</span> @(<span class="text-pink-400">posedge</span> clk <span class="text-pink-400">or negedge</span> rst_n) <span class="text-pink-400">begin</span>
+        <span class="text-pink-400">if</span> (!rst_n) state &lt;= S_RED;
+        <span class="text-pink-400">else</span>        state &lt;= next_state;
+    <span class="text-pink-400">end</span>
+
+    <span class="text-pink-400">always</span> @(<span class="text-pink-400">*</span>) <span class="text-pink-400">begin</span>
+        <span class="text-pink-400">case</span> (state)
+            S_RED:    next_state = S_GREEN;
+            S_GREEN:  next_state = S_YELLOW;
+            S_YELLOW: next_state = S_RED;
+            <span class="text-pink-400">default</span>:  next_state = S_RED;
+        <span class="text-pink-400">endcase</span>
+    <span class="text-pink-400">end</span>
+
+    <span class="text-pink-400">always</span> @(<span class="text-pink-400">*</span>) <span class="text-pink-400">begin</span>
+        red=0; yellow=0; green=0;
+        <span class="text-pink-400">if</span> (state == S_RED) red = 1;
+        <span class="text-pink-400">else if</span> (state == S_GREEN) green = 1;
+        <span class="text-pink-400">else if</span> (state == S_YELLOW) yellow = 1;
+    <span class="text-pink-400">end</span>
+<span class="text-pink-400">endmodule</span></code></pre>
+                            </div>
+
+                            <div id="content-fsm-schematic" class="hidden p-6 flex-1 flex flex-col items-center justify-center bg-slate-900/50">
+                                <!-- Simple State Diagram -->
+                                <svg width="200" height="250" viewBox="0 0 200 250" class="text-slate-400">
+                                    <circle cx="100" cy="40" r="25" fill="#1e293b" stroke="#ef4444" stroke-width="3"/>
+                                    <text x="100" y="45" text-anchor="middle" fill="#ef4444" class="font-bold text-xs">S_RED</text>
+                                    
+                                    <circle cx="150" cy="150" r="25" fill="#1e293b" stroke="#22c55e" stroke-width="3"/>
+                                    <text x="150" y="155" text-anchor="middle" fill="#22c55e" class="font-bold text-xs">S_GREEN</text>
+                                    
+                                    <circle cx="50" cy="150" r="25" fill="#1e293b" stroke="#eab308" stroke-width="3"/>
+                                    <text x="50" y="155" text-anchor="middle" fill="#eab308" class="font-bold text-xs">S_YEL</text>
+
+                                    <!-- Arrows -->
+                                    <path d="M 115 55 Q 140 90 145 120" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path d="M 125 150 Q 100 160 75 150" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                                    <path d="M 55 125 Q 60 90 85 55" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                                    
+                                    <defs>
+                                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L0,6 L9,3 z" fill="currentColor" />
+                                        </marker>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- [AI-MARKER: Khối code HTML cho các module mới (như FIFO, SRAM, UART...) sẽ được AI chèn nối tiếp vào đây] -->
+
             </section>
 
             <!-- CONTACT -->
             <section id="tab-contact" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">
-                        Contact
-                    </h2>
-                    <p class="text-slate-400 mt-3">
-                        Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.
-                    </p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Contact</h2>
+                    <p class="text-slate-400 mt-3">Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <a href="mailto:pquoctrung141205@gmail.com" class="glass-card rounded-xl p-6 hover:border-cyan-500/60 transition-colors">
+                    <a href="mailto:pquoctrung141205@gmail.com" class="glass-card rounded-xl p-6 hover:border-cyan-500/60 transition-all hover:-translate-y-1">
                         <i data-lucide="mail" class="w-10 h-10 text-cyan-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Email</h3>
+                        <h3 class="text-xl font-bold text-slate-100 mb-1">Email</h3>
                         <p class="text-slate-400 text-sm">pquoctrung141205@gmail.com</p>
                     </a>
 
-                    <a href="https://github.com/trungpham141205" target="_blank" class="glass-card rounded-xl p-6 hover:border-emerald-500/60 transition-colors">
+                    <a href="https://github.com/trungpham141205" target="_blank" class="glass-card rounded-xl p-6 hover:border-emerald-500/60 transition-all hover:-translate-y-1">
                         <i data-lucide="github" class="w-10 h-10 text-emerald-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">GitHub</h3>
+                        <h3 class="text-xl font-bold text-slate-100 mb-1">GitHub</h3>
                         <p class="text-slate-400 text-sm">github.com/trungpham141205</p>
                     </a>
                 </div>
@@ -372,218 +591,38 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        // An toàn khi nạp Lucide Icons
+        function refreshIcons() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
 
         const tabs = ['home', 'projects', 'roadmap', 'lab', 'contact'];
-
         const navItems = [
             { id: 'home', icon: 'terminal', label: 'Home' },
             { id: 'projects', icon: 'folder-code', label: 'Projects' },
             { id: 'roadmap', icon: 'route', label: 'Roadmap' },
-            { id: 'lab', icon: 'monitor-play', label: 'Lab' },
+            { id: 'lab', icon: 'cpu', label: 'Lab' },
             { id: 'contact', icon: 'mail', label: 'Contact' }
         ];
 
         const projects = [
-            {
-                title: 'RV32I Single-Cycle CPU',
-                repo: 'RV32I_Single_Cycle',
-                url: 'https://github.com/trungpham141205/RV32I_Single_Cycle',
-                category: 'CPU',
-                level: 'Advanced',
-                icon: 'cpu',
-                color: 'violet',
-                description: 'A RISC-V RV32I single-cycle processor project focused on datapath integration, instruction decode, ALU control, register file, and memory interface thinking.',
-                highlights: [
-                    'RV32I CPU architecture',
-                    'Single-cycle datapath',
-                    'Control unit and ALU control',
-                    'Good foundation for SoC integration'
-                ],
-                tags: ['RISC-V', 'RV32I', 'CPU', 'Verilog', 'RTL']
-            },
-            {
-                title: 'SoC RV32I CNN',
-                repo: 'SoC-RV32I-CNN-',
-                url: 'https://github.com/trungpham141205/SoC-RV32I-CNN-',
-                category: 'SoC',
-                level: 'Advanced',
-                icon: 'network',
-                color: 'pink',
-                description: 'Early SoC exploration combining an RV32I direction with accelerator-level thinking. Useful as a stepping stone toward bus-based SoC and hardware accelerator integration.',
-                highlights: [
-                    'System-level hardware thinking',
-                    'CPU plus accelerator direction',
-                    'Memory-mapped architecture mindset',
-                    'Bridge toward custom SoC projects'
-                ],
-                tags: ['SoC', 'RV32I', 'Accelerator', 'RTL']
-            },
-            {
-                title: 'Traffic Light Controller',
-                repo: 'TRAFFIC_LIGHT_CONTROLLER',
-                url: 'https://github.com/trungpham141205/TRAFFIC_LIGHT_CONTROLLER',
-                category: 'FSM',
-                level: 'Intermediate',
-                icon: 'traffic-cone',
-                color: 'yellow',
-                description: 'FSM-based traffic light controller project for practicing state encoding, next-state logic, output logic, counter timing, and clean sequential RTL design.',
-                highlights: [
-                    'FSM design',
-                    'State register and next-state logic',
-                    'Counter-based timing',
-                    'Moore-style output control'
-                ],
-                tags: ['FSM', 'Counter', 'SystemVerilog', 'RTL']
-            },
-            {
-                title: 'SIPO 8-bit Register',
-                repo: 'SIPO_8_BIT',
-                url: 'https://github.com/trungpham141205/SIPO_8_BIT',
-                category: 'Sequential',
-                level: 'Intermediate',
-                icon: 'move-right',
-                color: 'emerald',
-                description: 'Serial-In Parallel-Out register design for practicing flip-flop chains, reset behavior, sequential timing, and waveform-based verification.',
-                highlights: [
-                    'Sequential logic',
-                    'D flip-flop chain',
-                    'Reset behavior',
-                    'Timing-aware verification'
-                ],
-                tags: ['SIPO', 'Register', 'Flip-Flop', 'Timing']
-            },
-            {
-                title: 'Carry Lookahead Adder 4-bit',
-                repo: 'CLA_4_BIT',
-                url: 'https://github.com/trungpham141205/CLA_4_BIT',
-                category: 'Arithmetic',
-                level: 'Intermediate',
-                icon: 'zap',
-                color: 'cyan',
-                description: 'A 4-bit Carry Lookahead Adder project focused on generate/propagate logic and faster carry computation compared with ripple-carry structure.',
-                highlights: [
-                    'Generate/propagate logic',
-                    'Fast carry computation',
-                    'Combinational optimization',
-                    'Adder architecture comparison'
-                ],
-                tags: ['CLA', 'Adder', 'Combinational', 'Verilog']
-            },
-            {
-                title: 'Ripple Carry Adder 32-bit',
-                repo: 'Ripple_Carry_Adder_32bit',
-                url: 'https://github.com/trungpham141205/Ripple_Carry_Adder_32bit',
-                category: 'Arithmetic',
-                level: 'Intermediate',
-                icon: 'plus-square',
-                color: 'cyan',
-                description: 'A 32-bit ripple carry adder project that scales basic full-adder composition into a wider datapath block.',
-                highlights: [
-                    '32-bit datapath',
-                    'Full-adder chaining',
-                    'Carry propagation analysis',
-                    'Foundation for ALU design'
-                ],
-                tags: ['RCA', 'Adder', '32-bit', 'Datapath']
-            },
-            {
-                title: 'Ripple Carry Adder 4-bit',
-                repo: 'Ripple_Carry_Adder_4-bit',
-                url: 'https://github.com/trungpham141205/Ripple_Carry_Adder_4-bit',
-                category: 'Arithmetic',
-                level: 'Beginner',
-                icon: 'plus',
-                color: 'cyan',
-                description: 'A 4-bit ripple carry adder built from full-adder stages. Useful for learning hierarchy, carry chain behavior, and worst-case propagation delay.',
-                highlights: [
-                    'Hierarchical RTL',
-                    'Carry chain behavior',
-                    'Worst-case timing path',
-                    'Testbench expected result checking'
-                ],
-                tags: ['RCA', 'Adder', '4-bit', 'Verilog']
-            },
-            {
-                title: 'Full Adder',
-                repo: 'Full_Adder',
-                url: 'https://github.com/trungpham141205/Full_Adder',
-                category: 'Basic Logic',
-                level: 'Beginner',
-                icon: 'box',
-                color: 'slate',
-                description: 'A fundamental 1-bit full adder block used as the base unit for ripple-carry adders and larger arithmetic datapaths.',
-                highlights: [
-                    'Sum and carry logic',
-                    'Boolean equation practice',
-                    'Reusable arithmetic cell',
-                    'Foundation for RCA'
-                ],
-                tags: ['Full Adder', 'Logic', 'Verilog']
-            },
-            {
-                title: 'Half Adder',
-                repo: 'Half_Adder',
-                url: 'https://github.com/trungpham141205/Half_Adder',
-                category: 'Basic Logic',
-                level: 'Beginner',
-                icon: 'box',
-                color: 'slate',
-                description: 'A basic combinational circuit project for learning XOR/AND behavior, module definition, and simple testbench verification.',
-                highlights: [
-                    'Basic combinational logic',
-                    'XOR and AND behavior',
-                    'Module I/O practice',
-                    'First RTL building block'
-                ],
-                tags: ['Half Adder', 'Logic', 'Verilog']
-            },
-            {
-                title: 'Fixed Point 32-bit',
-                repo: 'Fixed_Point_32bit',
-                url: 'https://github.com/trungpham141205/Fixed_Point_32bit',
-                category: 'Arithmetic',
-                level: 'Intermediate',
-                icon: 'calculator',
-                color: 'emerald',
-                description: 'A fixed-point arithmetic direction for understanding numerical representation, hardware-friendly computation, and datapath precision.',
-                highlights: [
-                    'Fixed-point representation',
-                    'Hardware arithmetic mindset',
-                    'Precision and scaling',
-                    'Datapath-oriented design'
-                ],
-                tags: ['Fixed Point', 'Arithmetic', '32-bit']
-            },
-            {
-                title: 'Smart House',
-                repo: 'Smart-House',
-                url: 'https://github.com/trungpham141205/Smart-House',
-                category: 'Embedded',
-                level: 'Applied',
-                icon: 'house',
-                color: 'emerald',
-                description: 'An applied embedded/IoT-style project that shows system thinking beyond pure RTL, useful for connecting hardware control with real-world applications.',
-                highlights: [
-                    'Embedded system application',
-                    'Sensor/control direction',
-                    'System integration mindset',
-                    'Practical hardware project'
-                ],
-                tags: ['Embedded', 'IoT', 'Smart Home']
-            }
+            { title: 'RV32I Single-Cycle CPU', repo: 'RV32I_Single_Cycle', url: 'https://github.com/trungpham141205/RV32I_Single_Cycle', category: 'CPU', level: 'Advanced', icon: 'cpu', color: 'violet', description: 'A RISC-V RV32I single-cycle processor project focused on datapath integration, instruction decode, ALU control, register file, and memory interface thinking.', highlights: ['RV32I CPU architecture', 'Single-cycle datapath', 'Control unit and ALU control', 'Good foundation for SoC integration'], tags: ['RISC-V', 'RV32I', 'CPU', 'Verilog'] },
+            { title: 'SoC RV32I CNN', repo: 'SoC-RV32I-CNN-', url: 'https://github.com/trungpham141205/SoC-RV32I-CNN-', category: 'SoC', level: 'Advanced', icon: 'network', color: 'pink', description: 'Early SoC exploration combining an RV32I direction with accelerator-level thinking.', highlights: ['System-level hardware thinking', 'CPU plus accelerator direction', 'Memory-mapped architecture'], tags: ['SoC', 'Accelerator'] },
+            { title: 'Traffic Light Controller', repo: 'TRAFFIC_LIGHT_CONTROLLER', url: 'https://github.com/trungpham141205/TRAFFIC_LIGHT_CONTROLLER', category: 'FSM', level: 'Intermediate', icon: 'traffic-cone', color: 'yellow', description: 'FSM-based traffic light controller project for practicing state encoding and next-state logic.', highlights: ['FSM design', 'State register logic', 'Counter-based timing'], tags: ['FSM', 'SystemVerilog'] },
+            { title: 'SIPO 8-bit Register', repo: 'SIPO_8_BIT', url: 'https://github.com/trungpham141205/SIPO_8_BIT', category: 'Sequential', level: 'Intermediate', icon: 'move-right', color: 'emerald', description: 'Serial-In Parallel-Out register design for practicing flip-flop chains and reset behavior.', highlights: ['Sequential logic', 'D flip-flop chain', 'Timing-aware verification'], tags: ['SIPO', 'Flip-Flop'] },
+            { title: 'Carry Lookahead Adder', repo: 'CLA_4_BIT', url: 'https://github.com/trungpham141205/CLA_4_BIT', category: 'Arithmetic', level: 'Intermediate', icon: 'zap', color: 'cyan', description: 'A 4-bit Carry Lookahead Adder project focused on generate/propagate logic.', highlights: ['Generate/propagate logic', 'Fast carry computation', 'Combinational optimization'], tags: ['CLA', 'Adder', 'Combinational'] },
+            { title: 'Ripple Carry Adder 32-bit', repo: 'Ripple_Carry_Adder_32bit', url: 'https://github.com/trungpham141205/Ripple_Carry_Adder_32bit', category: 'Arithmetic', level: 'Intermediate', icon: 'plus-square', color: 'cyan', description: 'A 32-bit ripple carry adder scaling basic full-adder composition into a wider datapath.', highlights: ['32-bit datapath', 'Full-adder chaining', 'Carry propagation'], tags: ['RCA', 'Datapath'] }
         ];
 
-        const filters = ['All', 'CPU', 'SoC', 'FSM', 'Sequential', 'Arithmetic', 'Basic Logic', 'Embedded'];
-
+        const filters = ['All', 'CPU', 'SoC', 'FSM', 'Sequential', 'Arithmetic'];
         let activeFilter = 'All';
 
         function renderNav() {
             const desktopNav = document.getElementById('nav-desktop');
             const mobileNav = document.getElementById('nav-mobile');
-
-            desktopNav.innerHTML = '';
-            mobileNav.innerHTML = '';
+            desktopNav.innerHTML = ''; mobileNav.innerHTML = '';
 
             navItems.forEach(item => {
                 desktopNav.innerHTML += `
@@ -591,222 +630,281 @@
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800">
                         <i data-lucide="${item.icon}" class="w-5 h-5"></i>
                         <span class="font-medium hidden md:block">${item.label}</span>
-                    </button>
-                `;
-
+                    </button>`;
                 mobileNav.innerHTML += `
                     <button onclick="switchTab('${item.id}')" id="nav-m-${item.id}"
-                        class="p-2 rounded text-slate-500">
+                        class="p-3 rounded-xl text-slate-500 transition-colors">
                         <i data-lucide="${item.icon}" class="w-6 h-6"></i>
-                    </button>
-                `;
+                    </button>`;
             });
-
-            lucide.createIcons();
+            refreshIcons();
         }
 
         function switchTab(tabId) {
             tabs.forEach(t => {
-                document.getElementById(`tab-${t}`).classList.remove('active');
-
-                const desktopItem = document.getElementById(`nav-d-${t}`);
-                const mobileItem = document.getElementById(`nav-m-${t}`);
-
-                if (desktopItem) {
-                    desktopItem.className =
-                        "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800";
-                }
-
-                if (mobileItem) {
-                    mobileItem.className =
-                        "p-2 rounded text-slate-500";
-                }
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.remove('active');
+                
+                const navD = document.getElementById(`nav-d-${t}`);
+                if (navD) navD.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800";
+                
+                const navM = document.getElementById(`nav-m-${t}`);
+                if (navM) navM.className = "p-3 rounded-xl text-slate-500 transition-colors";
             });
 
-            document.getElementById(`tab-${tabId}`).classList.add('active');
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) activeTab.classList.add('active');
 
-            const desktopActive = document.getElementById(`nav-d-${tabId}`);
-            const mobileActive = document.getElementById(`nav-m-${tabId}`);
-
-            if (desktopActive) {
-                desktopActive.className =
-                    "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-cyan-950/40 text-cyan-400 border border-cyan-900/50";
-            }
-
-            if (mobileActive) {
-                mobileActive.className =
-                    "p-2 rounded text-cyan-400 bg-cyan-950/50";
-            }
-
-            lucide.createIcons();
+            const activeNavD = document.getElementById(`nav-d-${tabId}`);
+            if (activeNavD) activeNavD.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-cyan-950/40 text-cyan-400 border border-cyan-900/50 shadow-inner";
+            
+            const activeNavM = document.getElementById(`nav-m-${tabId}`);
+            if (activeNavM) activeNavM.className = "p-3 rounded-xl text-cyan-400 bg-cyan-950/50 border border-cyan-900/50";
+            
+            if(tabId === 'lab') updateALUDisplay();
         }
 
         function colorClass(color) {
-            const map = {
-                cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30',
-                emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30',
-                violet: 'text-violet-400 border-violet-500/30 bg-violet-950/30',
-                pink: 'text-pink-400 border-pink-500/30 bg-pink-950/30',
-                yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-950/30',
-                slate: 'text-slate-300 border-slate-600 bg-slate-800/60'
-            };
-
-            return map[color] || map.cyan;
+            const map = { cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30', emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30', violet: 'text-violet-400 border-violet-500/30 bg-violet-950/30', pink: 'text-pink-400 border-pink-500/30 bg-pink-950/30', yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-950/30' };
+            return map[color] || 'text-slate-300 border-slate-600 bg-slate-800/60';
         }
 
         function renderFilters() {
             const container = document.getElementById('filter-buttons');
-
-            container.innerHTML = filters.map(filter => {
-                const active = filter === activeFilter;
-
-                return `
-                    <button onclick="setFilter('${filter}')"
-                        class="px-4 py-2 rounded-lg border text-sm font-mono transition-colors ${
-                            active
-                                ? 'bg-cyan-500 text-slate-950 border-cyan-400'
-                                : 'bg-slate-900/70 text-slate-400 border-slate-700 hover:text-cyan-400 hover:border-cyan-500/50'
-                        }">
-                        ${filter}
-                    </button>
-                `;
-            }).join('');
+            container.innerHTML = filters.map(filter => `
+                <button onclick="setFilter('${filter}')" class="px-4 py-2 rounded-lg border text-sm font-mono transition-colors ${filter === activeFilter ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-900/70 text-slate-400 border-slate-700 hover:text-cyan-400'}">${filter}</button>
+            `).join('');
         }
 
-        function setFilter(filter) {
-            activeFilter = filter;
-            renderFilters();
-            renderProjects();
-        }
+        function setFilter(filter) { activeFilter = filter; renderFilters(); renderProjects(); }
 
         function renderProjects() {
             const grid = document.getElementById('project-grid');
-
-            const visibleProjects = activeFilter === 'All'
-                ? projects
-                : projects.filter(project => project.category === activeFilter);
-
+            const visibleProjects = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
             grid.innerHTML = visibleProjects.map(project => `
-                <article class="project-card glass-card rounded-xl p-6 transition-all duration-300 hover:border-cyan-500/60">
-                    <div class="flex items-start justify-between gap-4 mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-lg border flex items-center justify-center ${colorClass(project.color)}">
-                                <i data-lucide="${project.icon}" class="w-6 h-6"></i>
+                <article class="project-card glass-card rounded-xl p-6 flex flex-col h-full border-t-2 ${project.color === 'cyan' ? 'border-t-cyan-500' : project.color === 'emerald' ? 'border-t-emerald-500' : project.color === 'violet' ? 'border-t-violet-500' : project.color === 'pink' ? 'border-t-pink-500' : 'border-t-yellow-500'}">
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center ${colorClass(project.color)}"><i data-lucide="${project.icon}" class="w-5 h-5"></i></div>
+                                <div><h3 class="text-lg font-bold text-slate-100 leading-tight">${project.title}</h3></div>
                             </div>
-
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-100">
-                                    ${project.title}
-                                </h3>
-
-                                <p class="text-xs text-slate-500 font-mono mt-1">
-                                    ${project.repo}
-                                </p>
-                            </div>
+                            <span class="text-[10px] px-2 py-1 rounded border uppercase tracking-wider ${colorClass(project.color)}">${project.level}</span>
                         </div>
-
-                        <span class="text-xs px-2 py-1 rounded border ${colorClass(project.color)}">
-                            ${project.level}
-                        </span>
-                    </div>
-
-                    <p class="text-slate-400 text-sm leading-relaxed mb-5">
-                        ${project.description}
-                    </p>
-
-                    <div class="mb-5">
-                        <h4 class="text-sm font-semibold text-slate-200 mb-2">
-                            Engineering Focus
-                        </h4>
-
-                        <ul class="space-y-2">
-                            ${project.highlights.map(item => `
-                                <li class="flex items-center gap-2 text-sm text-slate-400">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
-                                    ${item}
-                                </li>
-                            `).join('')}
+                        <p class="text-slate-400 text-sm mb-4 line-clamp-3">${project.description}</p>
+                        <ul class="space-y-1.5 mb-6">
+                            ${project.highlights.slice(0, 3).map(item => `<li class="flex items-start gap-2 text-xs text-slate-400"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0"></i>${item}</li>`).join('')}
                         </ul>
                     </div>
-
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        ${project.tags.map(tag => `
-                            <span class="text-xs px-2 py-1 rounded bg-slate-950/70 border border-slate-700 text-slate-400 font-mono">
-                                ${tag}
-                            </span>
-                        `).join('')}
+                    <div class="mt-auto pt-4 border-t border-slate-800/50 flex justify-between items-center">
+                        <div class="flex gap-2">
+                            ${project.tags.slice(0,2).map(tag => `<span class="text-[10px] px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${tag}</span>`).join('')}
+                        </div>
+                        <a href="${project.url}" target="_blank" class="p-2 text-slate-400 hover:text-cyan-400 bg-slate-800 rounded-lg transition-colors"><i data-lucide="github" class="w-4 h-4"></i></a>
                     </div>
-
-                    <a href="${project.url}" target="_blank"
-                       class="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-mono">
-                        View Repository
-                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                    </a>
                 </article>
             `).join('');
-
-            lucide.createIcons();
+            refreshIcons();
         }
 
-        function calculateALU(op) {
-            const aInput = document.getElementById('alu-a').value.trim();
-            const bInput = document.getElementById('alu-b').value.trim();
-            const out = document.getElementById('alu-out');
+        // --- Logic quản lý View trong Tab Lab (ĐÃ ĐƯỢC LÀM CHO GENERIC DỄ MỞ RỘNG) ---
+        function switchLabModule(moduleId) {
+            // 1. Lấy tất cả các nút bấm menu và các khối module
+            const buttons = document.querySelectorAll('.lab-nav-btn');
+            const modules = document.querySelectorAll('.lab-module');
 
-            const validBinary = /^[01]{4}$/;
+            // 2. Reset toàn bộ giao diện về trạng thái inactive
+            buttons.forEach(btn => {
+                btn.className = "lab-nav-btn px-4 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm border border-transparent transition-colors whitespace-nowrap";
+            });
+            modules.forEach(mod => {
+                mod.style.display = 'none';
+            });
 
-            if (!validBinary.test(aInput) || !validBinary.test(bInput)) {
-                out.innerText = 'ERR';
-                return;
+            // 3. Kích hoạt module được chọn
+            const activeBtn = document.getElementById(`btn-mod-${moduleId}`);
+            const activeMod = document.getElementById(`lab-module-${moduleId}`);
+
+            if (activeBtn) activeBtn.className = "lab-nav-btn px-4 py-2 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors whitespace-nowrap";
+            if (activeMod) activeMod.style.display = 'block';
+
+            // 4. Khởi tạo lại trạng thái mạch (nếu có logic js đi kèm)
+            if (moduleId === 'fsm' && typeof initFSM === 'function') initFSM();
+            // Thêm các hàm init của mạch khác vào đây sau này (ví dụ: initFIFO(), initSRAM())
+        }
+
+        function switchLabTab(module, tab) {
+            const btnVerilog = document.getElementById(`btn-${module}-verilog`);
+            const btnSchematic = document.getElementById(`btn-${module}-schematic`);
+            const contentVerilog = document.getElementById(`content-${module}-verilog`);
+            const contentSchematic = document.getElementById(`content-${module}-schematic`);
+
+            const activeBtnClass = "px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2";
+            const inactiveBtnClass = "px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors";
+
+            if (tab === 'verilog') {
+                if (btnVerilog) btnVerilog.className = activeBtnClass;
+                if (btnSchematic) btnSchematic.className = inactiveBtnClass;
+                if (contentVerilog) { contentVerilog.classList.remove('hidden'); contentVerilog.classList.add('flex-1'); }
+                if (contentSchematic) { contentSchematic.classList.add('hidden'); contentSchematic.classList.remove('flex-1'); }
+            } else {
+                if (btnSchematic) btnSchematic.className = activeBtnClass;
+                if (btnVerilog) btnVerilog.className = inactiveBtnClass;
+                if (contentSchematic) { contentSchematic.classList.remove('hidden'); contentSchematic.classList.add('flex-1'); }
+                if (contentVerilog) { contentVerilog.classList.add('hidden'); contentVerilog.classList.remove('flex-1'); }
             }
+        }
 
-            const a = parseInt(aInput, 2);
-            const b = parseInt(bInput, 2);
+        // --- Logic cho FSM LAB ---
+        let currentFsmState = 0; 
+        
+        function updateFSMDisplay() {
+            const redLed = document.getElementById('fsm-led-red');
+            const yellowLed = document.getElementById('fsm-led-yellow');
+            const greenLed = document.getElementById('fsm-led-green');
+            const stateText = document.getElementById('fsm-state-text');
+
+            redLed.style.background = '#0f172a'; redLed.style.borderColor = '#334155'; redLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
+            yellowLed.style.background = '#0f172a'; yellowLed.style.borderColor = '#334155'; yellowLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
+            greenLed.style.background = '#0f172a'; greenLed.style.borderColor = '#334155'; greenLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
+
+            if (currentFsmState === 0) {
+                redLed.style.background = '#ef4444'; redLed.style.borderColor = '#fca5a5'; redLed.style.boxShadow = '0 0 15px #ef4444, inset 0 0 4px #fff';
+                stateText.innerText = 'S_RED'; stateText.className = 'text-xl font-bold text-red-400 tracking-widest';
+            } else if (currentFsmState === 1) {
+                greenLed.style.background = '#22c55e'; greenLed.style.borderColor = '#86efac'; greenLed.style.boxShadow = '0 0 15px #22c55e, inset 0 0 4px #fff';
+                stateText.innerText = 'S_GREEN'; stateText.className = 'text-xl font-bold text-green-400 tracking-widest';
+            } else if (currentFsmState === 2) {
+                yellowLed.style.background = '#eab308'; yellowLed.style.borderColor = '#fde047'; yellowLed.style.boxShadow = '0 0 15px #eab308, inset 0 0 4px #fff';
+                stateText.innerText = 'S_YELLOW'; stateText.className = 'text-xl font-bold text-yellow-400 tracking-widest';
+            }
+        }
+
+        function tickFSM() {
+            if (currentFsmState === 0) currentFsmState = 1;
+            else if (currentFsmState === 1) currentFsmState = 2;
+            else if (currentFsmState === 2) currentFsmState = 0;
+            updateFSMDisplay();
+        }
+
+        function resetFSM() {
+            currentFsmState = 0;
+            updateFSMDisplay();
+        }
+
+        function initFSM() {
+            resetFSM();
+        }
+
+        // --- Logic cho Interactive LAB (DIP Switches & LEDs) ---
+        let hwState = {
+            a: [0, 1, 0, 1],
+            b: [0, 0, 1, 1],
+            op: 'AND'
+        };
+
+        function toggleSwitch(inputGroup, bitIndex) {
+            hwState[inputGroup][bitIndex] = hwState[inputGroup][bitIndex] === 0 ? 1 : 0;
+            const swEl = document.getElementById(`sw-${inputGroup}-${bitIndex}`);
+            if (hwState[inputGroup][bitIndex] === 1) swEl.classList.add('active');
+            else swEl.classList.remove('active');
+            
+            updateALUDisplay();
+        }
+
+        function setOperation(op) {
+            hwState.op = op;
+            ['AND', 'OR', 'XOR', 'ADD'].forEach(o => {
+                const btn = document.getElementById(`op-${o}`);
+                if (o === op) {
+                    btn.className = "px-3 py-1.5 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent text-sm transition-colors";
+                }
+            });
+            updateALUDisplay();
+        }
+
+        function updateALUDisplay() {
+            const valA = (hwState.a[3] << 3) | (hwState.a[2] << 2) | (hwState.a[1] << 1) | hwState.a[0];
+            const valB = (hwState.b[3] << 3) | (hwState.b[2] << 2) | (hwState.b[1] << 1) | hwState.b[0];
+
+            document.getElementById('val-a-dec').innerText = `Dec: ${valA}`;
+            document.getElementById('val-b-dec').innerText = `Dec: ${valB}`;
 
             let result = 0;
+            if (hwState.op === 'AND') result = valA & valB;
+            if (hwState.op === 'OR') result = valA | valB;
+            if (hwState.op === 'XOR') result = valA ^ valB;
+            if (hwState.op === 'ADD') result = valA + valB;
 
-            if (op === 'AND') result = a & b;
-            if (op === 'OR') result = a | b;
-            if (op === 'XOR') result = a ^ b;
-            if (op === 'ADD') result = (a + b) & 0xF;
+            const o0 = (result >> 0) & 1;
+            const o1 = (result >> 1) & 1;
+            const o2 = (result >> 2) & 1;
+            const o3 = (result >> 3) & 1;
+            const cout = (result >> 4) & 1;
 
-            out.innerText = result.toString(2).padStart(4, '0');
+            const updateLED = (id, bit) => {
+                const led = document.getElementById(id);
+                if (bit === 1) led.classList.add('on');
+                else led.classList.remove('on');
+            };
+
+            updateLED('led-0', o0);
+            updateLED('led-1', o1);
+            updateLED('led-2', o2);
+            updateLED('led-3', o3);
+            updateLED('led-cout', cout);
+
+            document.getElementById('out-bin-text').innerText = `${cout}${o3}${o2}${o1}${o0}`;
+            document.getElementById('out-dec-text').innerText = result;
         }
 
-        const typingLines = [
-            '> Loading GitHub repositories...',
-            '> Mapping projects into Digital IC roadmap...',
-            '> RTL portfolio initialized...',
-            '> Pham Quoc Trung ready_'
-        ];
+        function initLab() {
+            for(let i=0; i<4; i++) {
+                if(hwState.a[i]===1) document.getElementById(`sw-a-${i}`).classList.add('active');
+                if(hwState.b[i]===1) document.getElementById(`sw-b-${i}`).classList.add('active');
+            }
+            updateALUDisplay();
+        }
 
-        let currentLine = 0;
-        let currentChar = 0;
+        // Typing effect
+        const typingLines = [
+            '~ $ source setup_env.sh',
+            '> Initializing Hardware Portfolio...',
+            '> Synthesizing RTL modules...',
+            '> Simulating testbenches... [PASS]',
+            '> Pham Quoc Trung: System Online_'
+        ];
+        let currentLine = 0; let currentChar = 0;
         const typingEl = document.getElementById('typing-text');
 
         function typeLine() {
+            if (!typingEl) return;
             if (currentLine < typingLines.length) {
                 if (currentChar < typingLines[currentLine].length) {
                     typingEl.innerHTML += typingLines[currentLine].charAt(currentChar);
                     currentChar++;
-                    setTimeout(typeLine, 35);
+                    setTimeout(typeLine, 25);
                 } else {
                     typingEl.innerHTML += '<br>';
-                    currentLine++;
-                    currentChar = 0;
-                    setTimeout(typeLine, 350);
+                    currentLine++; currentChar = 0;
+                    setTimeout(typeLine, 200);
                 }
             } else {
-                typingEl.innerHTML = typingEl.innerHTML.replace('_', '<span class="cursor-blink">_</span>');
+                typingEl.innerHTML = typingEl.innerHTML.replace('_', '<span class="cursor-blink font-bold text-emerald-400">_</span>');
             }
         }
 
-        renderNav();
-        switchTab('home');
-        renderFilters();
-        renderProjects();
-        calculateALU('ADD');
-        setTimeout(typeLine, 500);
+        // Boot
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            switchTab('home');
+            renderFilters();
+            renderProjects();
+            initLab();
+            setTimeout(typeLine, 600);
+        });
     </script>
 </body>
 </html>
