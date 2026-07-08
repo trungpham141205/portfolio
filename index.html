@@ -122,10 +122,11 @@
     <div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
     <div class="fixed inset-0 bg-gradient-to-br from-cyan-950/20 via-slate-950 to-emerald-950/10 pointer-events-none z-0"></div>
 
-    <div class="relative z-10 flex min-h-screen max-w-7xl mx-auto">
+    <!-- ĐÃ ĐỔI: Chuyển từ max-w-7xl sang w-full để chiếm trọn màn hình -->
+    <div class="relative z-10 flex min-h-screen w-full">
 
         <!-- Sidebar Desktop -->
-        <aside class="hidden sm:flex w-20 md:w-72 border-r border-slate-800 bg-slate-900/70 backdrop-blur-md flex-col justify-between py-8 sticky top-0 h-screen">
+        <aside class="hidden sm:flex w-20 md:w-72 border-r border-slate-800 bg-slate-900/70 backdrop-blur-md flex-col justify-between py-8 sticky top-0 h-screen shrink-0">
             <div>
                 <div class="px-4 md:px-8 mb-12 flex items-center gap-3">
                     <i data-lucide="cpu" class="w-8 h-8 text-cyan-400"></i>
@@ -156,7 +157,7 @@
         <main class="flex-1 p-6 md:p-12 pb-24 overflow-y-auto">
 
             <!-- HOME -->
-            <section id="tab-home" class="tab-content active space-y-12">
+            <section id="tab-home" class="tab-content active space-y-12 max-w-7xl mx-auto">
                 <div class="space-y-6">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-300 text-xs font-mono">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -226,7 +227,7 @@
             </section>
 
             <!-- PROJECTS -->
-            <section id="tab-projects" class="tab-content space-y-8">
+            <section id="tab-projects" class="tab-content space-y-8 max-w-7xl mx-auto">
                 <div class="border-b border-slate-800 pb-6 flex justify-between items-end">
                     <div>
                         <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Project Portfolio</h2>
@@ -244,7 +245,7 @@
             </section>
 
             <!-- ROADMAP -->
-            <section id="tab-roadmap" class="tab-content space-y-8">
+            <section id="tab-roadmap" class="tab-content space-y-8 max-w-7xl mx-auto">
                 <div class="border-b border-slate-800 pb-6">
                     <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Learning Roadmap</h2>
                     <p class="text-slate-400 mt-3 max-w-3xl">Structured as an engineering progression. Each phase builds upon the previous one to construct complex hardware systems.</p>
@@ -289,7 +290,8 @@
                 </div>
             </section>
 
-            <!-- LAB (NÂNG CẤP RTL VIEW & MULTI-MODULES) -->
+            <!-- LAB (ĐÃ ĐƯỢC CHIA GRID LẠI ĐỂ HIỂN THỊ RỘNG HƠN) -->
+            <!-- Note: Không dùng max-w-7xl ở Lab để có diện tích lớn nhất -->
             <section id="tab-lab" class="tab-content space-y-8">
                 <div class="border-b border-slate-800 pb-6">
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -315,9 +317,10 @@
 
                 <!-- MODULE 1: 4-BIT ALU -->
                 <div id="lab-module-alu" class="lab-module block">
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <!-- SỬA GRID: Cột trái lấy 5 phần, cột phải lấy 7 phần để khu vực Code/Diagram rộng hơn -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
                         <!-- LEFT COLUMN: INTERACTIVE UI (FPGA Board) -->
-                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full">
+                        <div class="xl:col-span-5 glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full">
                             <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
                             
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
@@ -391,8 +394,8 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT COLUMN: ENGINEERING VIEW (Verilog & Schematic) -->
-                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                        <!-- RIGHT COLUMN: ENGINEERING VIEW -->
+                        <div class="xl:col-span-7 bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
                             <!-- IDE Header -->
                             <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
                                 <button onclick="switchLabTab('alu', 'verilog')" id="btn-alu-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
@@ -431,7 +434,7 @@
                             </div>
 
                             <div id="content-alu-schematic" class="hidden p-6 flex-1 flex items-center justify-center bg-slate-900/50">
-                                <svg width="300" height="300" viewBox="0 0 300 300" class="text-slate-400">
+                                <svg width="100%" height="100%" viewBox="0 0 300 300" class="text-slate-400 font-mono w-full min-w-[300px]">
                                     <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" stroke-width="2"/>
                                     <text x="80" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">A [3:0]</text>
                                     <path d="M 75 70 L 85 75 L 75 80" fill="none" stroke="currentColor"/>
@@ -454,20 +457,21 @@
 
                 <!-- MODULE 2: TRAFFIC LIGHT FSM -->
                 <div id="lab-module-fsm" class="lab-module hidden">
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <!-- SỬA GRID: Cột trái 4 phần, cột phải 8 phần (Diagram rộng hơn nữa) -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
                         <!-- LEFT COLUMN: INTERACTIVE UI -->
-                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full">
+                        <div class="xl:col-span-4 glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full">
                             <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
                             
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
+                            <div class="flex flex-col mb-8 gap-4 border-b border-slate-700 pb-6">
                                 <div>
                                     <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
                                         <i data-lucide="traffic-cone" class="w-5 h-5 text-yellow-400"></i>
-                                        Automated Traffic Controller
+                                        Automated Traffic
                                     </h3>
-                                    <p class="text-slate-500 text-sm mt-1">Clock is generated automatically.</p>
+                                    <p class="text-slate-500 text-xs mt-1">Clock is generated automatically.</p>
                                 </div>
-                                <div class="flex gap-2">
+                                <div>
                                     <button onclick="resetFSM()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm transition-colors font-bold shadow-md active:translate-y-0.5">
                                         RSTN
                                     </button>
@@ -482,20 +486,20 @@
                                 </div>
                             </div>
 
-                            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center flex justify-between px-6 md:px-12">
+                            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center flex justify-between px-6">
                                 <div>
-                                    <span class="text-xs text-slate-500 block mb-1">State Reg</span>
-                                    <span id="fsm-state-text" class="text-xl font-bold text-slate-400 tracking-widest">IDLE</span>
+                                    <span class="text-[10px] text-slate-500 block mb-1">State Reg</span>
+                                    <span id="fsm-state-text" class="text-lg font-bold text-slate-400 tracking-widest">IDLE</span>
                                 </div>
-                                <div class="border-l border-slate-700 pl-6 md:pl-12">
-                                    <span class="text-xs text-slate-500 block mb-1">Counter Reg</span>
-                                    <span id="fsm-counter-text" class="text-xl font-mono text-cyan-400">0</span>
+                                <div class="border-l border-slate-700 pl-6">
+                                    <span class="text-[10px] text-slate-500 block mb-1">Counter</span>
+                                    <span id="fsm-counter-text" class="text-lg font-mono text-cyan-400">0</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- RIGHT COLUMN: ENGINEERING VIEW -->
-                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                        <div class="xl:col-span-8 bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
                             <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
                                 <button onclick="switchLabTab('fsm', 'verilog')" id="btn-fsm-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
                                     <i data-lucide="file-code-2" class="w-4 h-4"></i> traffic_controller.sv
@@ -637,9 +641,9 @@
 <span class="text-pink-400">endmodule</span></code></pre>
                             </div>
 
+                            <!-- ĐÃ SỬA: Loại bỏ style fix cứng min-width cho hiển thị thân thiện responsive hơn -->
                             <div id="content-fsm-schematic" class="hidden p-6 flex-1 flex flex-col items-center justify-center bg-slate-900/50 overflow-x-auto">
-                                <!-- Detailed State Diagram mapped from Draw.io -->
-                                <svg width="100%" height="100%" viewBox="0 0 850 350" style="min-width: 750px;" class="text-slate-400 font-mono">
+                                <svg width="100%" height="100%" viewBox="0 0 850 350" class="text-slate-400 font-mono w-full min-w-[600px]">
                                     <defs>
                                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                                             <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
@@ -728,7 +732,7 @@
             </section>
 
             <!-- CONTACT -->
-            <section id="tab-contact" class="tab-content space-y-8">
+            <section id="tab-contact" class="tab-content space-y-8 max-w-7xl mx-auto">
                 <div class="border-b border-slate-800 pb-6">
                     <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Contact</h2>
                     <p class="text-slate-400 mt-3">Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.</p>
