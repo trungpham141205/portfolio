@@ -113,6 +113,24 @@
             border-color: #67e8f9;
             box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee, inset 0 0 4px #fff;
         }
+
+        /* --- Layout fix for wide RTL lab views --- */
+        main {
+            min-width: 0;
+        }
+
+        .lab-module {
+            width: 100%;
+            min-width: 0;
+        }
+
+        #tab-lab pre {
+            white-space: pre;
+        }
+
+        #tab-lab svg {
+            shape-rendering: geometricPrecision;
+        }
     </style>
 </head>
 
@@ -154,7 +172,7 @@
         <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-800 z-50 flex justify-around p-3 backdrop-blur" id="nav-mobile"></nav>
 
         <!-- Main Content -->
-        <main class="flex-1 p-6 md:p-12 pb-24 overflow-y-auto">
+        <main class="flex-1 min-w-0 w-full p-4 md:p-8 xl:p-10 pb-24 overflow-y-auto">
 
             <!-- HOME -->
             <section id="tab-home" class="tab-content active space-y-12 max-w-7xl mx-auto">
@@ -292,7 +310,7 @@
 
             <!-- LAB (ĐÃ ĐƯỢC CHIA GRID LẠI ĐỂ HIỂN THỊ RỘNG HƠN) -->
             <!-- Note: Không dùng max-w-7xl ở Lab để có diện tích lớn nhất -->
-            <section id="tab-lab" class="tab-content space-y-8">
+            <section id="tab-lab" class="tab-content space-y-8 w-full max-w-none">
                 <div class="border-b border-slate-800 pb-6">
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
@@ -318,9 +336,9 @@
                 <!-- MODULE 1: 4-BIT ALU -->
                 <div id="lab-module-alu" class="lab-module block">
                     <!-- SỬA GRID: Cột trái lấy 5 phần, cột phải lấy 7 phần để khu vực Code/Diagram rộng hơn -->
-                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                    <div class="grid grid-cols-1 xl:grid-cols-[420px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch">
                         <!-- LEFT COLUMN: INTERACTIVE UI (FPGA Board) -->
-                        <div class="xl:col-span-5 glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full">
+                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full min-w-0">
                             <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
                             
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
@@ -395,7 +413,7 @@
                         </div>
 
                         <!-- RIGHT COLUMN: ENGINEERING VIEW -->
-                        <div class="xl:col-span-7 bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
                             <!-- IDE Header -->
                             <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
                                 <button onclick="switchLabTab('alu', 'verilog')" id="btn-alu-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
@@ -433,8 +451,8 @@
 <span class="text-pink-400">endmodule</span></code></pre>
                             </div>
 
-                            <div id="content-alu-schematic" class="hidden p-6 flex-1 flex items-center justify-center bg-slate-900/50">
-                                <svg width="100%" height="100%" viewBox="0 0 300 300" class="text-slate-400 font-mono w-full min-w-[300px]">
+                            <div id="content-alu-schematic" class="hidden p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px]">
+                                <svg width="300" height="300" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" class="block w-full h-auto min-w-[300px] max-w-[720px] mx-auto text-slate-400 font-mono">
                                     <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" stroke-width="2"/>
                                     <text x="80" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">A [3:0]</text>
                                     <path d="M 75 70 L 85 75 L 75 80" fill="none" stroke="currentColor"/>
@@ -458,9 +476,9 @@
                 <!-- MODULE 2: TRAFFIC LIGHT FSM -->
                 <div id="lab-module-fsm" class="lab-module hidden">
                     <!-- SỬA GRID: Cột trái 4 phần, cột phải 8 phần (Diagram rộng hơn nữa) -->
-                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                    <div class="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch">
                         <!-- LEFT COLUMN: INTERACTIVE UI -->
-                        <div class="xl:col-span-4 glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full">
+                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full min-w-0">
                             <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
                             
                             <div class="flex flex-col mb-8 gap-4 border-b border-slate-700 pb-6">
@@ -499,7 +517,7 @@
                         </div>
 
                         <!-- RIGHT COLUMN: ENGINEERING VIEW -->
-                        <div class="xl:col-span-8 bg-slate-900 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden shadow-xl">
+                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
                             <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
                                 <button onclick="switchLabTab('fsm', 'verilog')" id="btn-fsm-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
                                     <i data-lucide="file-code-2" class="w-4 h-4"></i> traffic_controller.sv
@@ -642,8 +660,8 @@
                             </div>
 
                             <!-- ĐÃ SỬA: Loại bỏ style fix cứng min-width cho hiển thị thân thiện responsive hơn -->
-                            <div id="content-fsm-schematic" class="hidden p-6 flex-1 flex flex-col items-center justify-center bg-slate-900/50 overflow-x-auto">
-                                <svg width="100%" height="100%" viewBox="0 0 850 350" class="text-slate-400 font-mono w-full min-w-[600px]">
+                            <div id="content-fsm-schematic" class="hidden p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px]">
+                                <svg width="850" height="350" viewBox="0 0 850 350" preserveAspectRatio="xMidYMid meet" class="block w-full h-auto min-w-[760px] max-w-none text-slate-400 font-mono">
                                     <defs>
                                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                                             <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
