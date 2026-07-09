@@ -1,1162 +1,842 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pham Quoc Trung | Digital IC Portfolio</title>
+import React, { useState, useEffect } from 'react';
+import { 
+  Terminal, Cpu, BookOpen, User, Mail, Search, 
+  ArrowRight, Github, Linkedin, ExternalLink, Code, Layers,
+  Workflow, Binary, MoveRight, Zap, PlusSquare, Network, TrafficCone, FileCode2, GitMerge
+} from 'lucide-react';
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+// ==========================================
+// GLOBAL STYLES & TOKENS (Merged Design System + Hardware Lab UI)
+// ==========================================
+const GlobalStyles = () => (
+  <style dangerouslySetInnerHTML={{__html: `
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    :root {
+      /* Colors based on MASTER.md and Lab UI */
+      --color-primary: #1E3A5F;
+      --color-secondary: #2563EB;
+      --color-accent: #A16207;
+      
+      --color-bg-dark: #0f172a;      /* Main background (Slate 900) */
+      --color-bg-card: rgba(30, 41, 59, 0.52); /* Glass card background */
+      --color-border-subtle: rgba(100, 116, 139, 0.45);
+      
+      --color-text-main: #cbd5e1;    /* Slate 300 */
+      --color-text-heading: #f8fafc; /* Slate 50 */
+      
+      --color-cyan: #22d3ee;
+      --color-emerald: #10b981;
+      --color-violet: #8b5cf6;
+      --color-yellow: #eab308;
+      --color-pink: #ec4899;
+      --color-red: #ef4444;
+      --color-green: #22c55e;
+    }
 
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #cbd5e1;
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        }
+    body {
+      background-color: var(--color-bg-dark);
+      color: var(--color-text-main);
+      font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
 
-        .bg-grid-pattern {
-            background-size: 40px 40px;
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        }
+    h1, h2, h3, h4, h5, h6, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    /* Grid Background Pattern */
+    .bg-grid-pattern {
+      background-size: 40px 40px;
+      background-image:
+          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
 
-        .tab-content { display: none; }
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.45s ease-out forwards;
-        }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .cursor-blink { animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.52);
-            border: 1px solid rgba(100, 116, 139, 0.45);
-            backdrop-filter: blur(10px);
-        }
-
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px -5px rgba(34, 211, 238, 0.1);
-        }
-
-        /* --- Custom UI cho Hardware Lab (FPGA DIP Switches & LEDs) --- */
-        .hw-switch-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .hw-switch {
-            position: relative;
-            width: 24px;
-            height: 48px;
-            background: #1e293b;
-            border: 2px solid #334155;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-            transition: all 0.2s;
-        }
-
-        .hw-switch::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 2px;
-            width: 16px;
-            height: 20px;
-            background: #cbd5e1;
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .hw-switch.active::after {
-            bottom: 22px;
-            background: #22d3ee;
-            box-shadow: 0 -2px 4px rgba(34, 211, 238, 0.4);
-        }
-
-        .hw-led {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #0f172a;
-            border: 2px solid #334155;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-            transition: all 0.15s;
-        }
-
-        .hw-led.on {
-            background: #22d3ee;
-            border-color: #67e8f9;
-            box-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee, inset 0 0 4px #fff;
-        }
-
-        /* --- Layout fix for wide RTL lab views --- */
-        main {
-            min-width: 0;
-        }
-
-        .lab-module {
-            width: 100%;
-            min-width: 0;
-        }
-
-        #tab-lab pre {
-            white-space: pre;
-        }
-
-        #tab-lab svg {
-            shape-rendering: geometricPrecision;
-        }
-    </style>
-</head>
-
-<body class="relative min-h-screen selection:bg-cyan-500/30">
-
-    <!-- Background -->
-    <div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
-    <div class="fixed inset-0 bg-gradient-to-br from-cyan-950/20 via-slate-950 to-emerald-950/10 pointer-events-none z-0"></div>
-
-    <!-- ĐÃ ĐỔI: Chuyển từ max-w-7xl sang w-full để chiếm trọn màn hình -->
-    <div class="relative z-10 flex min-h-screen w-full">
-
-        <!-- Sidebar Desktop -->
-        <aside class="hidden sm:flex w-20 md:w-72 border-r border-slate-800 bg-slate-900/70 backdrop-blur-md flex-col justify-between py-8 sticky top-0 h-screen shrink-0">
-            <div>
-                <div class="px-4 md:px-8 mb-12 flex items-center gap-3">
-                    <i data-lucide="cpu" class="w-8 h-8 text-cyan-400"></i>
-                    <span class="font-bold text-xl hidden md:block text-slate-100">
-                        Trung<span class="text-cyan-400">.</span>IC
-                    </span>
-                </div>
-                <nav class="space-y-2 px-2 md:px-4" id="nav-desktop"></nav>
-            </div>
-
-            <div class="px-4 md:px-8 space-y-4">
-                <a href="#" class="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-200 transition-colors">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    <span class="hidden md:block">Download Resume</span>
-                </a>
-                <a href="https://github.com/trungpham141205" target="_blank"
-                   class="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-500/50 rounded-lg text-sm text-slate-400 hover:text-cyan-400 transition-colors">
-                    <i data-lucide="github" class="w-4 h-4"></i>
-                    <span class="hidden md:block">GitHub Profile</span>
-                </a>
-            </div>
-        </aside>
-
-        <!-- Mobile Nav -->
-        <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-800 z-50 flex justify-around p-3 backdrop-blur" id="nav-mobile"></nav>
-
-        <!-- Main Content -->
-        <main class="flex-1 min-w-0 w-full p-4 md:p-8 xl:p-10 pb-24 overflow-y-auto">
-
-            <!-- HOME -->
-            <section id="tab-home" class="tab-content active space-y-12 max-w-7xl mx-auto">
-                <div class="space-y-6">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-300 text-xs font-mono">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Status: Open to Work
-                    </div>
-
-                    <h1 class="text-4xl md:text-6xl font-bold text-slate-100 font-mono tracking-tight leading-tight">
-                        HI, I'M
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
-                            PHAM QUOC TRUNG
-                        </span>
-                    </h1>
-
-                    <h2 class="text-xl md:text-2xl text-slate-400 font-mono">
-                        &lt;Digital IC Design Learner / RTL & FPGA Builder /&gt;
-                    </h2>
-
-                    <p class="max-w-3xl text-slate-400 leading-relaxed">
-                        I am building a practical digital design portfolio focused on RTL design,
-                        verification mindset, FPGA prototyping, CPU architecture, and SoC-level integration.
-                        My current learning path moves from combinational blocks to sequential circuits,
-                        FSMs, RISC-V CPU design, and system-level hardware architecture.
-                    </p>
-
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="switchTab('projects')" class="px-5 py-3 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-                            View RTL Projects
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-
-                        <button onclick="switchTab('lab')" class="px-5 py-3 rounded-lg border border-slate-600 bg-slate-800/50 text-slate-200 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-2">
-                            <i data-lucide="monitor-play" class="w-4 h-4"></i>
-                            Interactive Lab
-                        </button>
-                    </div>
-
-                    <!-- Console Animation -->
-                    <div class="font-mono text-cyan-400 bg-slate-950/90 p-6 rounded-xl border border-slate-700 shadow-[0_0_20px_rgba(34,211,238,0.05)] h-48 flex flex-col justify-end max-w-3xl relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-emerald-500"></div>
-                        <div class="absolute top-2 right-4 flex gap-1.5">
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
-                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
-                        </div>
-                        <div id="typing-text" class="whitespace-pre-line text-sm md:text-base"></div>
-                    </div>
-                </div>
-
-                <!-- Highlights -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-cyan-500">
-                        <i data-lucide="binary" class="w-8 h-8 text-cyan-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">RTL Design</h3>
-                        <p class="text-sm text-slate-400">Verilog/SystemVerilog modules including adders, registers, FSMs, and CPU datapath blocks.</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-emerald-500">
-                        <i data-lucide="workflow" class="w-8 h-8 text-emerald-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">Verification</h3>
-                        <p class="text-sm text-slate-400">Testbench-driven learning, expected results checking, corner cases, and waveform inspection.</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-xl border-t-4 border-t-violet-500">
-                        <i data-lucide="cpu" class="w-8 h-8 text-violet-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
-                        <p class="text-sm text-slate-400">Focus on RV32I single-cycle CPU, memory-mapped architecture, and future SoC integration.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PROJECTS -->
-            <section id="tab-projects" class="tab-content space-y-8 max-w-7xl mx-auto">
-                <div class="border-b border-slate-800 pb-6 flex justify-between items-end">
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Project Portfolio</h2>
-                        <p class="text-slate-400 mt-3 max-w-2xl">
-                            A curated list of my GitHub repositories demonstrating my progression from basic combinatorial logic to full system architectures.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Filter Buttons -->
-                <div class="flex flex-wrap gap-2" id="filter-buttons"></div>
-
-                <!-- Project Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="project-grid"></div>
-            </section>
-
-            <!-- ROADMAP -->
-            <section id="tab-roadmap" class="tab-content space-y-8 max-w-7xl mx-auto">
-                <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Learning Roadmap</h2>
-                    <p class="text-slate-400 mt-3 max-w-3xl">Structured as an engineering progression. Each phase builds upon the previous one to construct complex hardware systems.</p>
-                </div>
-                
-                <div class="relative border-l-2 border-slate-800 ml-3 md:ml-6 space-y-8 pb-8">
-                    <div class="relative pl-8 md:pl-12">
-                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-cyan-500"></div>
-                        <div class="glass-card rounded-xl p-6">
-                            <span class="text-xs font-mono text-cyan-400 mb-2 block">Phase 1</span>
-                            <h3 class="text-xl font-bold text-slate-100 mb-2">Combinational RTL Foundation</h3>
-                            <p class="text-slate-400 text-sm">Half Adder, Full Adder, Ripple Carry Adder, Carry Lookahead Adder. Focus: Boolean logic, datapath composition, propagation delay.</p>
-                        </div>
-                    </div>
-
-                    <div class="relative pl-8 md:pl-12">
-                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-emerald-500"></div>
-                        <div class="glass-card rounded-xl p-6">
-                            <span class="text-xs font-mono text-emerald-400 mb-2 block">Phase 2</span>
-                            <h3 class="text-xl font-bold text-slate-100 mb-2">Sequential Logic & Timing</h3>
-                            <p class="text-slate-400 text-sm">SIPO register and timing-aware designs. Focus: flip-flops, reset behavior, setup/hold thinking, waveform reading.</p>
-                        </div>
-                    </div>
-
-                    <div class="relative pl-8 md:pl-12">
-                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-yellow-500"></div>
-                        <div class="glass-card rounded-xl p-6">
-                            <span class="text-xs font-mono text-yellow-400 mb-2 block">Phase 3</span>
-                            <h3 class="text-xl font-bold text-slate-100 mb-2">FSM Design</h3>
-                            <p class="text-slate-400 text-sm">Traffic Light Controller. Focus: state definition, next-state logic, counter-based timing, clean RTL partitioning.</p>
-                        </div>
-                    </div>
-
-                    <div class="relative pl-8 md:pl-12">
-                        <div class="absolute -left-[11px] top-1.5 w-5 h-5 rounded-full bg-slate-900 border-4 border-violet-500"></div>
-                        <div class="glass-card rounded-xl p-6">
-                            <span class="text-xs font-mono text-violet-400 mb-2 block">Phase 4</span>
-                            <h3 class="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
-                            <p class="text-slate-400 text-sm">RV32I Single-Cycle CPU. Focus: instruction fetch, decode, ALU control, register file, memory access.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- LAB (ĐÃ ĐƯỢC CHIA GRID LẠI ĐỂ HIỂN THỊ RỘNG HƠN) -->
-            <!-- Note: Không dùng max-w-7xl ở Lab để có diện tích lớn nhất -->
-            <section id="tab-lab" class="tab-content space-y-8 w-full max-w-none">
-                <div class="border-b border-slate-800 pb-6">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                        <div>
-                            <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Digital Lab</h2>
-                            <p class="text-slate-400 mt-3">
-                                Interactive RTL simulation. Select a module below to test its functionality.
-                            </p>
-                        </div>
-                        
-                        <!-- Menu Chọn Lab Module -->
-                        <div class="bg-slate-900 p-1.5 rounded-lg border border-slate-700 flex gap-1 overflow-x-auto" id="lab-module-menu">
-                            <button onclick="switchLabModule('alu')" id="btn-mod-alu" class="lab-nav-btn px-4 py-2 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors whitespace-nowrap">
-                                4-bit ALU
-                            </button>
-                            <button onclick="switchLabModule('fsm')" id="btn-mod-fsm" class="lab-nav-btn px-4 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm border border-transparent transition-colors whitespace-nowrap">
-                                Traffic Light Controller (SystemVerilog)
-                            </button>
-                            <!-- [AI-MARKER: Thêm các nút bấm module mới vào đây trong tương lai] -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODULE 1: 4-BIT ALU -->
-                <div id="lab-module-alu" class="lab-module block">
-                    <!-- SỬA GRID: Cột trái lấy 5 phần, cột phải lấy 7 phần để khu vực Code/Diagram rộng hơn -->
-                    <div class="grid grid-cols-1 xl:grid-cols-[420px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch">
-                        <!-- LEFT COLUMN: INTERACTIVE UI (FPGA Board) -->
-                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full min-w-0">
-                            <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
-                            
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
-                                <div>
-                                    <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-                                        <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
-                                        FPGA Interface View
-                                    </h3>
-                                </div>
-                                
-                                <!-- Op Selector -->
-                                <div class="bg-slate-900 p-2 rounded-lg border border-slate-700 flex gap-2">
-                                    <button onclick="setOperation('AND')" id="op-AND" class="px-3 py-1.5 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors">AND</button>
-                                    <button onclick="setOperation('OR')" id="op-OR" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">OR</button>
-                                    <button onclick="setOperation('XOR')" id="op-XOR" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">XOR</button>
-                                    <button onclick="setOperation('ADD')" id="op-ADD" class="px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm transition-colors border border-transparent">ADD</button>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 flex-1">
-                                <!-- Input A -->
-                                <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <span class="text-sm text-slate-400 font-bold">Input A [3:0]</span>
-                                        <span id="val-a-dec" class="text-xs text-slate-500">Dec: 0</span>
-                                    </div>
-                                    <div class="flex justify-between px-2">
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-3" onclick="toggleSwitch('a', 3)"></div><span class="text-[10px] text-slate-500 mt-1">A3</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-2" onclick="toggleSwitch('a', 2)"></div><span class="text-[10px] text-slate-500 mt-1">A2</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-1" onclick="toggleSwitch('a', 1)"></div><span class="text-[10px] text-slate-500 mt-1">A1</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-a-0" onclick="toggleSwitch('a', 0)"></div><span class="text-[10px] text-slate-500 mt-1">A0</span></div>
-                                    </div>
-                                </div>
-
-                                <!-- Input B -->
-                                <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <span class="text-sm text-slate-400 font-bold">Input B [3:0]</span>
-                                        <span id="val-b-dec" class="text-xs text-slate-500">Dec: 0</span>
-                                    </div>
-                                    <div class="flex justify-between px-2">
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-3" onclick="toggleSwitch('b', 3)"></div><span class="text-[10px] text-slate-500 mt-1">B3</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-2" onclick="toggleSwitch('b', 2)"></div><span class="text-[10px] text-slate-500 mt-1">B2</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-1" onclick="toggleSwitch('b', 1)"></div><span class="text-[10px] text-slate-500 mt-1">B1</span></div>
-                                        <div class="hw-switch-container"><div class="hw-switch" id="sw-b-0" onclick="toggleSwitch('b', 0)"></div><span class="text-[10px] text-slate-500 mt-1">B0</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Output LEDs -->
-                            <div class="bg-[#0a0f18] p-6 rounded-xl border border-slate-700 shadow-inner flex flex-col items-center">
-                                <span class="text-sm text-slate-400 mb-6 font-bold flex items-center gap-2">
-                                    <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
-                                    Result Output (LEDs)
-                                </span>
-                                
-                                <div class="flex gap-6 md:gap-8">
-                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-cout"></div><span class="text-[10px] text-slate-500">COUT</span></div>
-                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-3"></div><span class="text-[10px] text-slate-500">O3</span></div>
-                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-2"></div><span class="text-[10px] text-slate-500">O2</span></div>
-                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-1"></div><span class="text-[10px] text-slate-500">O1</span></div>
-                                    <div class="flex flex-col items-center gap-3"><div class="hw-led" id="led-0"></div><span class="text-[10px] text-slate-500">O0</span></div>
-                                </div>
-
-                                <div class="mt-6 text-center">
-                                    <span class="text-xs text-slate-500">Binary: </span>
-                                    <span id="out-bin-text" class="text-cyan-400 font-bold ml-1 tracking-widest">00000</span>
-                                    <span class="text-xs text-slate-500 ml-4">Decimal: </span>
-                                    <span id="out-dec-text" class="text-emerald-400 font-bold ml-1">0</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- RIGHT COLUMN: ENGINEERING VIEW -->
-                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
-                            <!-- IDE Header -->
-                            <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
-                                <button onclick="switchLabTab('alu', 'verilog')" id="btn-alu-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
-                                    <i data-lucide="file-code-2" class="w-4 h-4"></i> alu_4bit.v
-                                </button>
-                                <button onclick="switchLabTab('alu', 'schematic')" id="btn-alu-schematic" class="px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors">
-                                    <i data-lucide="git-merge" class="w-4 h-4"></i> RTL_Schematic
-                                </button>
-                            </div>
-
-                            <div id="content-alu-verilog" class="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
-<pre><code><span class="text-pink-400">module</span> <span class="text-emerald-400">alu_4bit</span> (
-    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[3:0]</span> a,
-    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[3:0]</span> b,
-    <span class="text-cyan-400">input</span>  <span class="text-slate-400">[1:0]</span> alu_sel,
-    <span class="text-cyan-400">output</span> <span class="text-pink-400">reg</span> <span class="text-slate-400">[3:0]</span> result,
-    <span class="text-cyan-400">output</span> <span class="text-pink-400">reg</span>       carry_out
-);
-    <span class="text-cyan-400">wire</span> <span class="text-slate-400">[4:0]</span> add_res;
-    <span class="text-cyan-400">assign</span> add_res = a + b;
-
-    <span class="text-pink-400">always</span> @(<span class="text-pink-400">*</span>) <span class="text-pink-400">begin</span>
-        result    = <span class="text-orange-400">4'b0000</span>;
-        carry_out = <span class="text-orange-400">1'b0</span>;
-        <span class="text-pink-400">case</span> (alu_sel)
-            <span class="text-orange-400">2'b00</span>: result = a &amp; b;
-            <span class="text-orange-400">2'b01</span>: result = a | b;
-            <span class="text-orange-400">2'b10</span>: result = a ^ b;
-            <span class="text-orange-400">2'b11</span>: <span class="text-pink-400">begin</span>
-                result    = add_res<span class="text-slate-400">[3:0]</span>;
-                carry_out = add_res<span class="text-slate-400">[4]</span>;
-            <span class="text-pink-400">end</span>
-        <span class="text-pink-400">endcase</span>
-    <span class="text-pink-400">end</span>
-<span class="text-pink-400">endmodule</span></code></pre>
-                            </div>
-
-                            <div id="content-alu-schematic" class="hidden p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px]">
-                                <svg width="300" height="300" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" class="block w-full h-auto min-w-[300px] max-w-[720px] mx-auto text-slate-400 font-mono">
-                                    <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" stroke-width="2"/>
-                                    <text x="80" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">A [3:0]</text>
-                                    <path d="M 75 70 L 85 75 L 75 80" fill="none" stroke="currentColor"/>
-                                    <line x1="220" y1="50" x2="220" y2="90" stroke="currentColor" stroke-width="2"/>
-                                    <text x="220" y="40" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">B [3:0]</text>
-                                    <path d="M 215 70 L 225 75 L 215 80" fill="none" stroke="currentColor"/>
-                                    <line x1="20" y1="150" x2="60" y2="150" stroke="currentColor" stroke-width="2"/>
-                                    <text x="40" y="140" text-anchor="middle" fill="#38bdf8" class="font-mono text-xs">alu_sel</text>
-                                    <polygon points="60,90 240,90 190,210 160,210 150,180 140,210 110,210" fill="#1e293b" stroke="#22d3ee" stroke-width="3"/>
-                                    <text x="150" y="140" text-anchor="middle" fill="#22d3ee" class="font-bold text-xl">ALU</text>
-                                    <line x1="150" y1="210" x2="150" y2="260" stroke="currentColor" stroke-width="2"/>
-                                    <text x="150" y="275" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">result</text>
-                                    <line x1="200" y1="185" x2="250" y2="185" stroke="currentColor" stroke-width="2"/>
-                                    <text x="250" y="175" text-anchor="middle" fill="#cbd5e1" class="font-mono text-sm">cout</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MODULE 2: TRAFFIC LIGHT FSM -->
-                <div id="lab-module-fsm" class="lab-module hidden">
-                    <!-- SỬA GRID: Cột trái 4 phần, cột phải 8 phần (Diagram rộng hơn nữa) -->
-                    <div class="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch">
-                        <!-- LEFT COLUMN: INTERACTIVE UI -->
-                        <div class="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full min-w-0">
-                            <div class="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
-                            
-                            <div class="flex flex-col mb-8 gap-4 border-b border-slate-700 pb-6">
-                                <div>
-                                    <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-                                        <i data-lucide="traffic-cone" class="w-5 h-5 text-yellow-400"></i>
-                                        Automated Traffic
-                                    </h3>
-                                    <p class="text-slate-500 text-xs mt-1">Clock is generated automatically.</p>
-                                </div>
-                                <div>
-                                    <button onclick="resetFSM()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm transition-colors font-bold shadow-md active:translate-y-0.5">
-                                        RSTN
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="flex-1 flex flex-col items-center justify-center mb-8">
-                                <div class="bg-[#0a0f18] p-8 rounded-full border border-slate-700 shadow-inner flex flex-col gap-6">
-                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-red" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
-                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-yellow" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
-                                    <div class="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-900" id="fsm-led-green" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center flex justify-between px-6">
-                                <div>
-                                    <span class="text-[10px] text-slate-500 block mb-1">State Reg</span>
-                                    <span id="fsm-state-text" class="text-lg font-bold text-slate-400 tracking-widest">IDLE</span>
-                                </div>
-                                <div class="border-l border-slate-700 pl-6">
-                                    <span class="text-[10px] text-slate-500 block mb-1">Counter</span>
-                                    <span id="fsm-counter-text" class="text-lg font-mono text-cyan-400">0</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- RIGHT COLUMN: ENGINEERING VIEW -->
-                        <div class="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
-                            <div class="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
-                                <button onclick="switchLabTab('fsm', 'verilog')" id="btn-fsm-verilog" class="px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2">
-                                    <i data-lucide="file-code-2" class="w-4 h-4"></i> traffic_controller.sv
-                                </button>
-                                <button onclick="switchLabTab('fsm', 'schematic')" id="btn-fsm-schematic" class="px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors">
-                                    <i data-lucide="git-merge" class="w-4 h-4"></i> State_Diagram
-                                </button>
-                            </div>
-
-                            <div id="content-fsm-verilog" class="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
-<pre><code><span class="text-pink-400">module</span> <span class="text-emerald-400">traffic_light_controller</span> (
-    <span class="text-cyan-400">input</span>  <span class="text-cyan-400">logic</span> clk,
-    <span class="text-cyan-400">input</span>  <span class="text-cyan-400">logic</span> rstn,
-    <span class="text-cyan-400">output</span> <span class="text-cyan-400">logic</span> red_light,
-    <span class="text-cyan-400">output</span> <span class="text-cyan-400">logic</span> green_light,
-    <span class="text-cyan-400">output</span> <span class="text-cyan-400">logic</span> yellow_light
-);
-
-    <span class="text-slate-500 italic">// DEFINE STATE</span>
-    <span class="text-pink-400">typedef enum</span> <span class="text-cyan-400">logic</span> <span class="text-slate-400">[1:0]</span> {
-        IDLE   = <span class="text-orange-400">2'b00</span>,
-        RED    = <span class="text-orange-400">2'b01</span>,
-        GREEN  = <span class="text-orange-400">2'b10</span>,
-        YELLOW = <span class="text-orange-400">2'b11</span>
-    } <span class="text-cyan-400">state_t</span>;
-
-    <span class="text-cyan-400">state_t</span> current_state, next_state;
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     
-    <span class="text-slate-500 italic">// COUNTER VARIABLE</span>
-    <span class="text-cyan-400">logic</span> <span class="text-slate-400">[3:0]</span> counter;
-    <span class="text-cyan-400">logic</span>       counter_clear;
-    <span class="text-pink-400">localparam</span> <span class="text-cyan-400">logic</span> <span class="text-slate-400">[3:0]</span> IDLE_COUNT_MAX   = <span class="text-orange-400">4'b1001</span>;
-    <span class="text-pink-400">localparam</span> <span class="text-cyan-400">logic</span> <span class="text-slate-400">[3:0]</span> RED_COUNT_MAX  = <span class="text-orange-400">4'b0100</span>;
-    <span class="text-pink-400">localparam</span> <span class="text-cyan-400">logic</span> <span class="text-slate-400">[3:0]</span> GREEN_COUNT_MAX  = <span class="text-orange-400">4'b0100</span>;
-    <span class="text-pink-400">localparam</span> <span class="text-cyan-400">logic</span> <span class="text-slate-400">[3:0]</span> YELLOW_COUNT_MAX = <span class="text-orange-400">4'b0010</span>;
+    .animate-in {
+      animation: fadeIn 0.45s ease-out forwards;
+    }
 
-    <span class="text-slate-500 italic">// STATE REGISTER</span>
-    <span class="text-pink-400">always_ff</span> @(<span class="text-pink-400">posedge</span> clk <span class="text-pink-400">or negedge</span> rstn) <span class="text-pink-400">begin</span>
-        <span class="text-pink-400">if</span> (!rstn) <span class="text-pink-400">begin</span>
-            current_state &lt;= IDLE;
-        <span class="text-pink-400">end</span> 
-        <span class="text-pink-400">else begin</span>
-            current_state &lt;= next_state;
-        <span class="text-pink-400">end</span>
-    <span class="text-pink-400">end</span>
+    @keyframes pulse-slow {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .cursor-blink { animation: pulse-slow 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
-    <span class="text-slate-500 italic">// NEXT STATE LOGIC</span>
-    <span class="text-pink-400">always_comb</span> <span class="text-pink-400">begin</span>
-        next_state    = current_state; 
-        counter_clear = <span class="text-orange-400">1'b0</span>;
+    /* Core UI Components */
+    .glass-card {
+        background: var(--color-bg-card);
+        border: 1px solid var(--color-border-subtle);
+        backdrop-filter: blur(10px);
+        transition: all 200ms ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -5px rgba(34, 211, 238, 0.1);
+    }
 
-        <span class="text-pink-400">case</span> (current_state)
-            IDLE: <span class="text-pink-400">begin</span>
-                <span class="text-pink-400">if</span> (counter == IDLE_COUNT_MAX) <span class="text-pink-400">begin</span>
-                    next_state    = RED;
-                    counter_clear = <span class="text-orange-400">1'b1</span>;
-                <span class="text-pink-400">end</span>
-                <span class="text-pink-400">else begin</span>
-                    next_state = IDLE;
-                <span class="text-pink-400">end</span>
-            <span class="text-pink-400">end</span>
+    /* Hardware UI Specifics */
+    .hw-switch-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hw-switch {
+        position: relative; width: 24px; height: 48px; background: #1e293b;
+        border: 2px solid #334155; border-radius: 4px; cursor: pointer;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;
+    }
+    .hw-switch::after {
+        content: ''; position: absolute; bottom: 2px; left: 2px; width: 16px; height: 20px;
+        background: #cbd5e1; border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hw-switch.active::after {
+        bottom: 22px; background: var(--color-cyan); box-shadow: 0 -2px 4px rgba(34, 211, 238, 0.4);
+    }
 
-            RED: <span class="text-pink-400">begin</span>
-                <span class="text-pink-400">if</span> (counter == RED_COUNT_MAX) <span class="text-pink-400">begin</span>
-                    next_state    = GREEN;
-                    counter_clear = <span class="text-orange-400">1'b1</span>;
-                <span class="text-pink-400">end</span>
-                <span class="text-pink-400">else begin</span>
-                    next_state = RED;
-                <span class="text-pink-400">end</span>
-            <span class="text-pink-400">end</span>
+    .hw-led {
+        width: 20px; height: 20px; border-radius: 50%; background: #0f172a;
+        border: 2px solid #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        transition: all 0.15s;
+    }
+    .hw-led.on {
+        background: var(--color-cyan); border-color: #67e8f9;
+        box-shadow: 0 0 10px var(--color-cyan), 0 0 20px var(--color-cyan), inset 0 0 4px #fff;
+    }
+  `}} />
+);
 
-            GREEN: <span class="text-pink-400">begin</span>
-                <span class="text-pink-400">if</span> (counter == GREEN_COUNT_MAX) <span class="text-pink-400">begin</span>
-                    next_state    = YELLOW;
-                    counter_clear = <span class="text-orange-400">1'b1</span>;
-                <span class="text-pink-400">end</span>
-                <span class="text-pink-400">else begin</span>
-                    next_state = GREEN;                    
-                <span class="text-pink-400">end</span>
-            <span class="text-pink-400">end</span>
+// ==========================================
+// PAGES & COMPONENTS
+// ==========================================
 
-            YELLOW: <span class="text-pink-400">begin</span>
-                <span class="text-pink-400">if</span> (counter == YELLOW_COUNT_MAX) <span class="text-pink-400">begin</span>
-                    next_state    = RED;
-                    counter_clear = <span class="text-orange-400">1'b1</span>;
-                <span class="text-pink-400">end</span>
-                <span class="text-pink-400">else begin</span>
-                    next_state = YELLOW;
-                <span class="text-pink-400">end</span>
-            <span class="text-pink-400">end</span>
+const HomePage = ({ setPage }) => {
+  const [typingText, setTypingText] = useState('');
+  const typingLines = [
+    '~ $ source setup_env.sh\n',
+    '> Initializing Hardware Portfolio...\n',
+    '> Synthesizing RTL modules...\n',
+    '> Simulating testbenches... [PASS]\n',
+    '> Pham Quoc Trung: System Online_'
+  ];
 
-            <span class="text-pink-400">default</span>: <span class="text-pink-400">begin</span>
-                next_state = IDLE;
-                counter_clear = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-        <span class="text-pink-400">endcase</span>
-    <span class="text-pink-400">end</span>
+  useEffect(() => {
+    let currentLine = 0;
+    let currentChar = 0;
+    let text = '';
+    let isMounted = true;
 
-    <span class="text-slate-500 italic">// OUTPUT LOGIC</span>
-    <span class="text-pink-400">always_comb</span> <span class="text-pink-400">begin</span>
-        red_light    = <span class="text-orange-400">1'b0</span>;
-        green_light  = <span class="text-orange-400">1'b0</span>;
-        yellow_light = <span class="text-orange-400">1'b0</span>;
+    const typeLine = () => {
+      if (!isMounted) return;
+      
+      if (currentLine < typingLines.length) {
+        if (currentChar < typingLines[currentLine].length) {
+          text += typingLines[currentLine].charAt(currentChar);
+          setTypingText(text);
+          currentChar++;
+          setTimeout(typeLine, 25);
+        } else {
+          currentLine++;
+          currentChar = 0;
+          setTimeout(typeLine, 200);
+        }
+      } else {
+         setTypingText(text.replace('_', '')); // Remove static underscore for blinking one
+      }
+    };
 
-        <span class="text-pink-400">case</span> (current_state)
-            IDLE: <span class="text-pink-400">begin</span>
-                red_light = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-            RED: <span class="text-pink-400">begin</span>
-                red_light    = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-            
-            GREEN: <span class="text-pink-400">begin</span>
-                green_light = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-            YELLOW: <span class="text-pink-400">begin</span>
-                yellow_light = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-            <span class="text-pink-400">default</span>: <span class="text-pink-400">begin</span>
-                red_light = <span class="text-orange-400">1'b1</span>;
-            <span class="text-pink-400">end</span>
-        <span class="text-pink-400">endcase</span>
-    <span class="text-pink-400">end</span>
+    setTimeout(typeLine, 600);
+    return () => { isMounted = false; };
+  }, []);
 
-    <span class="text-slate-500 italic">// DATAPATH - COUNTER</span>
-    <span class="text-pink-400">always_ff</span> @(<span class="text-pink-400">posedge</span> clk <span class="text-pink-400">or negedge</span> rstn) <span class="text-pink-400">begin</span>
-        <span class="text-pink-400">if</span> (!rstn) <span class="text-pink-400">begin</span>
-            counter &lt;= <span class="text-orange-400">4'b0</span>;
-        <span class="text-pink-400">end</span> 
-        <span class="text-pink-400">else if</span> (counter_clear) <span class="text-pink-400">begin</span>
-            counter &lt;= <span class="text-orange-400">4'b0</span>; 
-        <span class="text-pink-400">end</span> 
-        <span class="text-pink-400">else begin</span>
-            counter &lt;= counter + <span class="text-orange-400">1'b1</span>;
-        <span class="text-pink-400">end</span>
-    <span class="text-pink-400">end</span>
+  return (
+    <div className="animate-in space-y-12 max-w-7xl mx-auto">
+      <div className="space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-300 text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Status: Open to Work
+        </div>
 
-<span class="text-pink-400">endmodule</span></code></pre>
-                            </div>
+        <h1 className="text-4xl md:text-6xl font-bold text-slate-100 font-mono tracking-tight leading-tight">
+            HI, I'M <br className="md:hidden" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+                PHAM QUOC TRUNG
+            </span>
+        </h1>
 
-                            <!-- ĐÃ SỬA: Loại bỏ style fix cứng min-width cho hiển thị thân thiện responsive hơn -->
-                            <div id="content-fsm-schematic" class="hidden p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px]">
-                                <svg width="850" height="350" viewBox="0 0 850 350" preserveAspectRatio="xMidYMid meet" class="block w-full h-auto min-w-[760px] max-w-none text-slate-400 font-mono">
-                                    <defs>
-                                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
-                                        </marker>
-                                        <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
-                                        </marker>
-                                        <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                            <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
-                                        </marker>
-                                    </defs>
+        <h2 className="text-xl md:text-2xl text-slate-400 font-mono">
+            &lt;Digital IC Design Learner / RTL & FPGA Builder /&gt;
+        </h2>
 
-                                    <!-- IDLE State -->
-                                    <rect x="50" y="100" width="140" height="85" rx="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
-                                    <text x="120" y="120" font-weight="bold" fill="#f8fafc" text-anchor="middle" font-size="14">IDLE</text>
-                                    <text x="120" y="140" fill="#cbd5e1" font-size="11" text-anchor="middle">red_light = 1</text>
-                                    <text x="120" y="155" fill="#cbd5e1" font-size="11" text-anchor="middle">green_light = 0</text>
-                                    <text x="120" y="170" fill="#cbd5e1" font-size="11" text-anchor="middle">yellow_light = 0</text>
+        <p className="max-w-3xl text-slate-400 leading-relaxed">
+            I am building a practical digital design portfolio focused on RTL design,
+            verification mindset, FPGA prototyping, CPU architecture, and SoC-level integration.
+            My current learning path moves from combinational blocks to sequential circuits,
+            FSMs, RISC-V CPU design, and system-level hardware architecture.
+        </p>
 
-                                    <!-- RED State -->
-                                    <rect x="260" y="100" width="140" height="85" rx="10" fill="#ef4444" />
-                                    <text x="330" y="120" font-weight="bold" fill="#171717" text-anchor="middle" font-size="14">RED</text>
-                                    <text x="330" y="140" fill="#171717" font-size="11" text-anchor="middle">red_light = 1</text>
-                                    <text x="330" y="155" fill="#171717" font-size="11" text-anchor="middle">green_light = 0</text>
-                                    <text x="330" y="170" fill="#171717" font-size="11" text-anchor="middle">yellow_light = 0</text>
+        <div className="flex flex-wrap gap-4">
+            <button onClick={() => setPage('projects')} className="px-5 py-3 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                View RTL Projects
+                <ArrowRight size={18} />
+            </button>
 
-                                    <!-- GREEN State -->
-                                    <rect x="470" y="100" width="140" height="85" rx="10" fill="#22c55e" />
-                                    <text x="540" y="120" font-weight="bold" fill="#171717" text-anchor="middle" font-size="14">GREEN</text>
-                                    <text x="540" y="140" fill="#171717" font-size="11" text-anchor="middle">red_light = 0</text>
-                                    <text x="540" y="155" fill="#171717" font-size="11" text-anchor="middle">green_light = 1</text>
-                                    <text x="540" y="170" fill="#171717" font-size="11" text-anchor="middle">yellow_light = 0</text>
+            <button onClick={() => setPage('labs')} className="px-5 py-3 rounded-lg border border-slate-600 bg-slate-800/50 text-slate-200 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-2">
+                <Cpu size={18} />
+                Interactive Lab
+            </button>
+        </div>
 
-                                    <!-- YELLOW State -->
-                                    <rect x="680" y="100" width="140" height="85" rx="10" fill="#facc15" />
-                                    <text x="750" y="120" font-weight="bold" fill="#171717" text-anchor="middle" font-size="14">YELLOW</text>
-                                    <text x="750" y="140" fill="#171717" font-size="11" text-anchor="middle">red_light = 0</text>
-                                    <text x="750" y="155" fill="#171717" font-size="11" text-anchor="middle">green_light = 0</text>
-                                    <text x="750" y="170" fill="#171717" font-size="11" text-anchor="middle">yellow_light = 1</text>
+        {/* Console Animation */}
+        <div className="font-mono text-cyan-400 bg-slate-950/90 p-6 rounded-xl border border-slate-700 shadow-[0_0_20px_rgba(34,211,238,0.05)] h-48 flex flex-col justify-end max-w-3xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-emerald-500"></div>
+            <div className="absolute top-2 right-4 flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+            </div>
+            <div className="whitespace-pre-line text-sm md:text-base">
+                {typingText}
+                {typingText.length === typingLines.join('').length -1 && <span className="cursor-blink font-bold text-emerald-400">_</span>}
+            </div>
+        </div>
+      </div>
 
-                                    <!-- Transitions (Arrows) -->
-                                    <!-- IDLE -> RED -->
-                                    <line x1="195" y1="142" x2="250" y2="142" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="225" y="158" fill="#94a3b8" font-size="12" text-anchor="middle">counter == 9</text>
-
-                                    <!-- RED -> GREEN -->
-                                    <line x1="405" y1="142" x2="460" y2="142" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowhead-red)"/>
-                                    <text x="435" y="158" fill="#94a3b8" font-size="12" text-anchor="middle">counter == 4</text>
-
-                                    <!-- GREEN -> YELLOW -->
-                                    <line x1="615" y1="142" x2="670" y2="142" stroke="#22c55e" stroke-width="2" marker-end="url(#arrowhead-green)"/>
-                                    <text x="645" y="158" fill="#94a3b8" font-size="12" text-anchor="middle">counter == 4</text>
-
-                                    <!-- YELLOW -> RED -->
-                                    <path d="M 750 185 Q 540 280 335 185" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="540" y="245" fill="#94a3b8" font-size="12" text-anchor="middle">counter == 2</text>
-
-                                    <!-- Self Loops -->
-                                    <!-- IDLE -->
-                                    <path d="M 100 98 C 100 40, 140 40, 140 98" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="120" y="35" fill="#94a3b8" font-size="12" text-anchor="middle">counter &lt; 9</text>
-
-                                    <!-- RED -->
-                                    <path d="M 310 98 C 310 40, 350 40, 350 98" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="330" y="35" fill="#94a3b8" font-size="12" text-anchor="middle">counter &lt; 4</text>
-
-                                    <!-- GREEN -->
-                                    <path d="M 520 98 C 520 40, 560 40, 560 98" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="540" y="35" fill="#94a3b8" font-size="12" text-anchor="middle">counter &lt; 4</text>
-
-                                    <!-- YELLOW -->
-                                    <path d="M 730 98 C 730 40, 770 40, 770 98" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="750" y="35" fill="#94a3b8" font-size="12" text-anchor="middle">counter &lt; 2</text>
-
-                                    <!-- RSTN Arrow -->
-                                    <line x1="120" y1="185" x2="120" y2="225" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
-                                    <text x="130" y="210" fill="#94a3b8" font-size="12" text-anchor="start">rstn == 0</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- [AI-MARKER: Khối code HTML cho các module mới (như FIFO, SRAM, UART...) sẽ được AI chèn nối tiếp vào đây] -->
-
-            </section>
-
-            <!-- CONTACT -->
-            <section id="tab-contact" class="tab-content space-y-8 max-w-7xl mx-auto">
-                <div class="border-b border-slate-800 pb-6">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Contact</h2>
-                    <p class="text-slate-400 mt-3">Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <a href="mailto:pquoctrung141205@gmail.com" class="glass-card rounded-xl p-6 hover:border-cyan-500/60 transition-all hover:-translate-y-1">
-                        <i data-lucide="mail" class="w-10 h-10 text-cyan-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-1">Email</h3>
-                        <p class="text-slate-400 text-sm">pquoctrung141205@gmail.com</p>
-                    </a>
-
-                    <a href="https://github.com/trungpham141205" target="_blank" class="glass-card rounded-xl p-6 hover:border-emerald-500/60 transition-all hover:-translate-y-1">
-                        <i data-lucide="github" class="w-10 h-10 text-emerald-400 mb-4"></i>
-                        <h3 class="text-xl font-bold text-slate-100 mb-1">GitHub</h3>
-                        <p class="text-slate-400 text-sm">github.com/trungpham141205</p>
-                    </a>
-                </div>
-            </section>
-
-        </main>
+      {/* Highlights */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="glass-card p-6 rounded-xl border-t-4 border-t-cyan-500 cursor-pointer">
+              <Binary className="text-cyan-400 mb-4" size={32} />
+              <h3 className="text-xl font-bold text-slate-100 mb-2">RTL Design</h3>
+              <p className="text-sm text-slate-400">Verilog/SystemVerilog modules including adders, registers, FSMs, and CPU datapath blocks.</p>
+          </div>
+          <div className="glass-card p-6 rounded-xl border-t-4 border-t-emerald-500 cursor-pointer">
+              <Workflow className="text-emerald-400 mb-4" size={32} />
+              <h3 className="text-xl font-bold text-slate-100 mb-2">Verification</h3>
+              <p className="text-sm text-slate-400">Testbench-driven learning, expected results checking, corner cases, and waveform inspection.</p>
+          </div>
+          <div className="glass-card p-6 rounded-xl border-t-4 border-t-violet-500 cursor-pointer">
+              <Cpu className="text-violet-400 mb-4" size={32} />
+              <h3 className="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
+              <p className="text-sm text-slate-400">Focus on RV32I single-cycle CPU, memory-mapped architecture, and future SoC integration.</p>
+          </div>
+      </div>
     </div>
+  );
+};
 
-    <script>
-        // An toàn khi nạp Lucide Icons
-        function refreshIcons() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
+const ProjectsPage = () => {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const filters = ['All', 'CPU', 'SoC', 'FSM', 'Sequential', 'Arithmetic'];
+  
+  const projectsData = [
+    { title: 'RV32I Single-Cycle CPU', repo: 'RV32I_Single_Cycle', url: '#', category: 'CPU', level: 'Advanced', icon: <Cpu/>, color: 'violet', description: 'A RISC-V RV32I single-cycle processor project focused on datapath integration, instruction decode, ALU control, register file, and memory interface thinking.', highlights: ['RV32I CPU architecture', 'Single-cycle datapath', 'Control unit and ALU control', 'Good foundation for SoC integration'], tags: ['RISC-V', 'RV32I', 'CPU', 'Verilog'] },
+    { title: 'SoC RV32I CNN', repo: 'SoC-RV32I-CNN-', url: '#', category: 'SoC', level: 'Advanced', icon: <Network/>, color: 'pink', description: 'Early SoC exploration combining an RV32I direction with accelerator-level thinking.', highlights: ['System-level hardware thinking', 'CPU plus accelerator direction', 'Memory-mapped architecture'], tags: ['SoC', 'Accelerator'] },
+    { title: 'Traffic Light Controller', repo: 'TRAFFIC_LIGHT_CONTROLLER', url: '#', category: 'FSM', level: 'Intermediate', icon: <TrafficCone/>, color: 'yellow', description: 'FSM-based traffic light controller project for practicing state encoding and next-state logic.', highlights: ['FSM design', 'State register logic', 'Counter-based timing'], tags: ['FSM', 'SystemVerilog'] },
+    { title: 'SIPO 8-bit Register', repo: 'SIPO_8_BIT', url: '#', category: 'Sequential', level: 'Intermediate', icon: <MoveRight/>, color: 'emerald', description: 'Serial-In Parallel-Out register design for practicing flip-flop chains and reset behavior.', highlights: ['Sequential logic', 'D flip-flop chain', 'Timing-aware verification'], tags: ['SIPO', 'Flip-Flop'] },
+    { title: 'Carry Lookahead Adder', repo: 'CLA_4_BIT', url: '#', category: 'Arithmetic', level: 'Intermediate', icon: <Zap/>, color: 'cyan', description: 'A 4-bit Carry Lookahead Adder project focused on generate/propagate logic.', highlights: ['Generate/propagate logic', 'Fast carry computation', 'Combinational optimization'], tags: ['CLA', 'Adder', 'Combinational'] },
+    { title: 'Ripple Carry Adder 32-bit', repo: 'Ripple_Carry_Adder_32bit', url: '#', category: 'Arithmetic', level: 'Intermediate', icon: <PlusSquare/>, color: 'cyan', description: 'A 32-bit ripple carry adder scaling basic full-adder composition into a wider datapath.', highlights: ['32-bit datapath', 'Full-adder chaining', 'Carry propagation'], tags: ['RCA', 'Datapath'] }
+  ];
 
-        const tabs = ['home', 'projects', 'roadmap', 'lab', 'contact'];
-        const navItems = [
-            { id: 'home', icon: 'terminal', label: 'Home' },
-            { id: 'projects', icon: 'folder-code', label: 'Projects' },
-            { id: 'roadmap', icon: 'route', label: 'Roadmap' },
-            { id: 'lab', icon: 'cpu', label: 'Lab' },
-            { id: 'contact', icon: 'mail', label: 'Contact' }
-        ];
+  const visibleProjects = activeFilter === 'All' ? projectsData : projectsData.filter(p => p.category === activeFilter);
 
-        const projects = [
-            { title: 'RV32I Single-Cycle CPU', repo: 'RV32I_Single_Cycle', url: 'https://github.com/trungpham141205/RV32I_Single_Cycle', category: 'CPU', level: 'Advanced', icon: 'cpu', color: 'violet', description: 'A RISC-V RV32I single-cycle processor project focused on datapath integration, instruction decode, ALU control, register file, and memory interface thinking.', highlights: ['RV32I CPU architecture', 'Single-cycle datapath', 'Control unit and ALU control', 'Good foundation for SoC integration'], tags: ['RISC-V', 'RV32I', 'CPU', 'Verilog'] },
-            { title: 'SoC RV32I CNN', repo: 'SoC-RV32I-CNN-', url: 'https://github.com/trungpham141205/SoC-RV32I-CNN-', category: 'SoC', level: 'Advanced', icon: 'network', color: 'pink', description: 'Early SoC exploration combining an RV32I direction with accelerator-level thinking.', highlights: ['System-level hardware thinking', 'CPU plus accelerator direction', 'Memory-mapped architecture'], tags: ['SoC', 'Accelerator'] },
-            { title: 'Traffic Light Controller', repo: 'TRAFFIC_LIGHT_CONTROLLER', url: 'https://github.com/trungpham141205/TRAFFIC_LIGHT_CONTROLLER', category: 'FSM', level: 'Intermediate', icon: 'traffic-cone', color: 'yellow', description: 'FSM-based traffic light controller project for practicing state encoding and next-state logic.', highlights: ['FSM design', 'State register logic', 'Counter-based timing'], tags: ['FSM', 'SystemVerilog'] },
-            { title: 'SIPO 8-bit Register', repo: 'SIPO_8_BIT', url: 'https://github.com/trungpham141205/SIPO_8_BIT', category: 'Sequential', level: 'Intermediate', icon: 'move-right', color: 'emerald', description: 'Serial-In Parallel-Out register design for practicing flip-flop chains and reset behavior.', highlights: ['Sequential logic', 'D flip-flop chain', 'Timing-aware verification'], tags: ['SIPO', 'Flip-Flop'] },
-            { title: 'Carry Lookahead Adder', repo: 'CLA_4_BIT', url: 'https://github.com/trungpham141205/CLA_4_BIT', category: 'Arithmetic', level: 'Intermediate', icon: 'zap', color: 'cyan', description: 'A 4-bit Carry Lookahead Adder project focused on generate/propagate logic.', highlights: ['Generate/propagate logic', 'Fast carry computation', 'Combinational optimization'], tags: ['CLA', 'Adder', 'Combinational'] },
-            { title: 'Ripple Carry Adder 32-bit', repo: 'Ripple_Carry_Adder_32bit', url: 'https://github.com/trungpham141205/Ripple_Carry_Adder_32bit', category: 'Arithmetic', level: 'Intermediate', icon: 'plus-square', color: 'cyan', description: 'A 32-bit ripple carry adder scaling basic full-adder composition into a wider datapath.', highlights: ['32-bit datapath', 'Full-adder chaining', 'Carry propagation'], tags: ['RCA', 'Datapath'] }
-        ];
+  const getColorClasses = (color) => {
+      const map = { 
+          cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30 border-t-cyan-500', 
+          emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30 border-t-emerald-500', 
+          violet: 'text-violet-400 border-violet-500/30 bg-violet-950/30 border-t-violet-500', 
+          pink: 'text-pink-400 border-pink-500/30 bg-pink-950/30 border-t-pink-500', 
+          yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-950/30 border-t-yellow-500' 
+      };
+      return map[color] || 'text-slate-300 border-slate-600 bg-slate-800/60 border-t-slate-500';
+  };
 
-        const filters = ['All', 'CPU', 'SoC', 'FSM', 'Sequential', 'Arithmetic'];
-        let activeFilter = 'All';
+  return (
+    <div className="animate-in space-y-8 max-w-7xl mx-auto">
+      <div className="border-b border-slate-800 pb-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Project Portfolio</h2>
+        <p className="text-slate-400 mt-3 max-w-2xl">
+            A curated list of my GitHub repositories demonstrating my progression from basic combinatorial logic to full system architectures.
+        </p>
+      </div>
 
-        function renderNav() {
-            const desktopNav = document.getElementById('nav-desktop');
-            const mobileNav = document.getElementById('nav-mobile');
-            desktopNav.innerHTML = ''; mobileNav.innerHTML = '';
+      {/* Filter */}
+      <div className="flex flex-wrap gap-2">
+        {filters.map(filter => (
+           <button 
+             key={filter}
+             onClick={() => setActiveFilter(filter)} 
+             className={`px-4 py-2 rounded-lg border text-sm font-mono transition-colors ${
+                 filter === activeFilter ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-900/70 text-slate-400 border-slate-700 hover:text-cyan-400'
+             }`}
+           >
+             {filter}
+           </button>
+        ))}
+      </div>
 
-            navItems.forEach(item => {
-                desktopNav.innerHTML += `
-                    <button onclick="switchTab('${item.id}')" id="nav-d-${item.id}"
-                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-                        <i data-lucide="${item.icon}" class="w-5 h-5"></i>
-                        <span class="font-medium hidden md:block">${item.label}</span>
-                    </button>`;
-                mobileNav.innerHTML += `
-                    <button onclick="switchTab('${item.id}')" id="nav-m-${item.id}"
-                        class="p-3 rounded-xl text-slate-500 transition-colors">
-                        <i data-lucide="${item.icon}" class="w-6 h-6"></i>
-                    </button>`;
-            });
-            refreshIcons();
-        }
-
-        function switchTab(tabId) {
-            tabs.forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                if (el) el.classList.remove('active');
-                
-                const navD = document.getElementById(`nav-d-${t}`);
-                if (navD) navD.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800";
-                
-                const navM = document.getElementById(`nav-m-${t}`);
-                if (navM) navM.className = "p-3 rounded-xl text-slate-500 transition-colors";
-            });
-
-            const activeTab = document.getElementById(`tab-${tabId}`);
-            if (activeTab) activeTab.classList.add('active');
-
-            const activeNavD = document.getElementById(`nav-d-${tabId}`);
-            if (activeNavD) activeNavD.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-cyan-950/40 text-cyan-400 border border-cyan-900/50 shadow-inner";
-            
-            const activeNavM = document.getElementById(`nav-m-${tabId}`);
-            if (activeNavM) activeNavM.className = "p-3 rounded-xl text-cyan-400 bg-cyan-950/50 border border-cyan-900/50";
-            
-            if(tabId === 'lab') {
-                updateALUDisplay();
-                // Ensure FSM runs if it's the active lab module
-                if (document.getElementById('lab-module-fsm').style.display === 'block') {
-                    initFSM();
-                }
-            } else {
-                // Stop FSM clock when not in Lab tab to save resources
-                stopFSM();
-            }
-        }
-
-        function colorClass(color) {
-            const map = { cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30', emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30', violet: 'text-violet-400 border-violet-500/30 bg-violet-950/30', pink: 'text-pink-400 border-pink-500/30 bg-pink-950/30', yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-950/30' };
-            return map[color] || 'text-slate-300 border-slate-600 bg-slate-800/60';
-        }
-
-        function renderFilters() {
-            const container = document.getElementById('filter-buttons');
-            container.innerHTML = filters.map(filter => `
-                <button onclick="setFilter('${filter}')" class="px-4 py-2 rounded-lg border text-sm font-mono transition-colors ${filter === activeFilter ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-900/70 text-slate-400 border-slate-700 hover:text-cyan-400'}">${filter}</button>
-            `).join('');
-        }
-
-        function setFilter(filter) { activeFilter = filter; renderFilters(); renderProjects(); }
-
-        function renderProjects() {
-            const grid = document.getElementById('project-grid');
-            const visibleProjects = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
-            grid.innerHTML = visibleProjects.map(project => `
-                <article class="project-card glass-card rounded-xl p-6 flex flex-col h-full border-t-2 ${project.color === 'cyan' ? 'border-t-cyan-500' : project.color === 'emerald' ? 'border-t-emerald-500' : project.color === 'violet' ? 'border-t-violet-500' : project.color === 'pink' ? 'border-t-pink-500' : 'border-t-yellow-500'}">
-                    <div class="flex-1">
-                        <div class="flex items-start justify-between gap-4 mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center ${colorClass(project.color)}"><i data-lucide="${project.icon}" class="w-5 h-5"></i></div>
-                                <div><h3 class="text-lg font-bold text-slate-100 leading-tight">${project.title}</h3></div>
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {visibleProjects.map((project, idx) => {
+            const colorClass = getColorClasses(project.color);
+            return (
+                <div key={idx} className={`glass-card rounded-xl p-6 flex flex-col h-full border-t-2 ${colorClass.split(' ').pop()}`}>
+                    <div className="flex-1">
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorClass.split(' ').slice(0, 3).join(' ')}`}>
+                                    {React.cloneElement(project.icon, { size: 20 })}
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-100 leading-tight">{project.title}</h3>
                             </div>
-                            <span class="text-[10px] px-2 py-1 rounded border uppercase tracking-wider ${colorClass(project.color)}">${project.level}</span>
+                            <span className={`text-[10px] px-2 py-1 rounded border uppercase tracking-wider ${colorClass.split(' ').slice(0, 3).join(' ')}`}>
+                                {project.level}
+                            </span>
                         </div>
-                        <p class="text-slate-400 text-sm mb-4 line-clamp-3">${project.description}</p>
-                        <ul class="space-y-1.5 mb-6">
-                            ${project.highlights.slice(0, 3).map(item => `<li class="flex items-start gap-2 text-xs text-slate-400"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0"></i>${item}</li>`).join('')}
+                        <p className="text-slate-400 text-sm mb-4">{project.description}</p>
+                        <ul className="space-y-1.5 mb-6">
+                            {project.highlights.slice(0, 3).map((item, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
+                                    <span className="text-emerald-400 mt-0.5 shrink-0">✓</span> {item}
+                                </li>
+                            ))}
                         </ul>
                     </div>
-                    <div class="mt-auto pt-4 border-t border-slate-800/50 flex justify-between items-center">
-                        <div class="flex gap-2">
-                            ${project.tags.slice(0,2).map(tag => `<span class="text-[10px] px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${tag}</span>`).join('')}
+                    <div className="mt-auto pt-4 border-t border-slate-800/50 flex justify-between items-center">
+                        <div className="flex gap-2 flex-wrap">
+                            {project.tags.slice(0,2).map(tag => (
+                                <span key={tag} className="text-[10px] px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">{tag}</span>
+                            ))}
                         </div>
-                        <a href="${project.url}" target="_blank" class="p-2 text-slate-400 hover:text-cyan-400 bg-slate-800 rounded-lg transition-colors"><i data-lucide="github" class="w-4 h-4"></i></a>
+                        <a href={project.url} className="p-2 text-slate-400 hover:text-cyan-400 bg-slate-800 rounded-lg transition-colors"><Github size={16} /></a>
                     </div>
-                </article>
-            `).join('');
-            refreshIcons();
-        }
+                </div>
+            )
+        })}
+      </div>
+    </div>
+  );
+};
 
-        // --- Logic quản lý View trong Tab Lab (ĐÃ ĐƯỢC LÀM CHO GENERIC DỄ MỞ RỘNG) ---
-        function switchLabModule(moduleId) {
-            // 1. Lấy tất cả các nút bấm menu và các khối module
-            const buttons = document.querySelectorAll('.lab-nav-btn');
-            const modules = document.querySelectorAll('.lab-module');
+// Interactive Components for Lab
+const ALULab = () => {
+    const [view, setView] = useState('verilog');
+    const [hwState, setHwState] = useState({ a: [0, 1, 0, 1], b: [0, 0, 1, 1], op: 'AND' });
 
-            // 2. Reset toàn bộ giao diện về trạng thái inactive
-            buttons.forEach(btn => {
-                btn.className = "lab-nav-btn px-4 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 text-sm border border-transparent transition-colors whitespace-nowrap";
+    const toggleSwitch = (inputGroup, bitIndex) => {
+        const newState = {...hwState};
+        newState[inputGroup][bitIndex] = newState[inputGroup][bitIndex] === 0 ? 1 : 0;
+        setHwState(newState);
+    };
+
+    const valA = (hwState.a[3] << 3) | (hwState.a[2] << 2) | (hwState.a[1] << 1) | hwState.a[0];
+    const valB = (hwState.b[3] << 3) | (hwState.b[2] << 2) | (hwState.b[1] << 1) | hwState.b[0];
+
+    let result = 0;
+    if (hwState.op === 'AND') result = valA & valB;
+    if (hwState.op === 'OR') result = valA | valB;
+    if (hwState.op === 'XOR') result = valA ^ valB;
+    if (hwState.op === 'ADD') result = valA + valB;
+
+    const o0 = (result >> 0) & 1; const o1 = (result >> 1) & 1;
+    const o2 = (result >> 2) & 1; const o3 = (result >> 3) & 1;
+    const cout = (result >> 4) & 1;
+
+    return (
+        <div className="grid grid-cols-1 xl:grid-cols-[420px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch animate-in">
+            {/* LEFT COLUMN: INTERACTIVE UI */}
+            <div className="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full min-w-0">
+                <div className="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
+                
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <Cpu className="text-cyan-400" size={20} /> FPGA Interface View
+                        </h3>
+                    </div>
+                    
+                    <div className="bg-slate-900 p-2 rounded-lg border border-slate-700 flex gap-2">
+                        {['AND', 'OR', 'XOR', 'ADD'].map(op => (
+                            <button key={op} onClick={() => setHwState({...hwState, op})}
+                                className={`px-3 py-1.5 rounded text-sm transition-colors border ${hwState.op === op ? 'bg-cyan-900/50 text-cyan-400 border-cyan-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border-transparent'}`}>
+                                {op}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 flex-1">
+                    {/* Input A */}
+                    <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm text-slate-400 font-bold">Input A [3:0]</span>
+                            <span className="text-xs text-slate-500">Dec: {valA}</span>
+                        </div>
+                        <div className="flex justify-between px-2">
+                            {[3, 2, 1, 0].map(bit => (
+                                <div key={bit} className="hw-switch-container">
+                                    <div className={`hw-switch ${hwState.a[bit] ? 'active' : ''}`} onClick={() => toggleSwitch('a', bit)}></div>
+                                    <span className="text-[10px] text-slate-500 mt-1">A{bit}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Input B */}
+                    <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm text-slate-400 font-bold">Input B [3:0]</span>
+                            <span className="text-xs text-slate-500">Dec: {valB}</span>
+                        </div>
+                        <div className="flex justify-between px-2">
+                            {[3, 2, 1, 0].map(bit => (
+                                <div key={bit} className="hw-switch-container">
+                                    <div className={`hw-switch ${hwState.b[bit] ? 'active' : ''}`} onClick={() => toggleSwitch('b', bit)}></div>
+                                    <span className="text-[10px] text-slate-500 mt-1">B{bit}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Output LEDs */}
+                <div className="bg-[#0a0f18] p-6 rounded-xl border border-slate-700 shadow-inner flex flex-col items-center">
+                    <span className="text-sm text-slate-400 mb-6 font-bold flex items-center gap-2">
+                        <Zap className="text-yellow-400" size={16} /> Result Output (LEDs)
+                    </span>
+                    
+                    <div className="flex gap-6 md:gap-8">
+                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${cout ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">COUT</span></div>
+                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o3 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O3</span></div>
+                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o2 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O2</span></div>
+                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o1 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O1</span></div>
+                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o0 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O0</span></div>
+                    </div>
+
+                    <div className="mt-6 text-center">
+                        <span className="text-xs text-slate-500">Binary: </span>
+                        <span className="text-cyan-400 font-bold ml-1 tracking-widest">{`${cout}${o3}${o2}${o1}${o0}`}</span>
+                        <span className="text-xs text-slate-500 ml-4">Decimal: </span>
+                        <span className="text-emerald-400 font-bold ml-1">{result}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT COLUMN: ENGINEERING VIEW */}
+            <div className="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
+                <div className="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
+                    <button onClick={() => setView('verilog')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'verilog' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
+                        <FileCode2 size={16} /> alu_4bit.v
+                    </button>
+                    <button onClick={() => setView('schematic')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'schematic' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
+                        <GitMerge size={16} /> RTL_Schematic
+                    </button>
+                </div>
+
+                {view === 'verilog' && (
+                    <div className="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
+                        <pre><code>
+<span className="text-pink-400">module</span> <span className="text-emerald-400">alu_4bit</span> (
+    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[3:0]</span> a,
+    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[3:0]</span> b,
+    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[1:0]</span> alu_sel,
+    <span className="text-cyan-400">output</span> <span className="text-pink-400">reg</span> <span className="text-slate-400">[3:0]</span> result,
+    <span className="text-cyan-400">output</span> <span className="text-pink-400">reg</span>       carry_out
+);
+    <span className="text-cyan-400">wire</span> <span className="text-slate-400">[4:0]</span> add_res;
+    <span className="text-cyan-400">assign</span> add_res = a + b;
+
+    <span className="text-pink-400">always</span> @(<span className="text-pink-400">*</span>) <span className="text-pink-400">begin</span>
+        result    = <span className="text-orange-400">4'b0000</span>;
+        carry_out = <span className="text-orange-400">1'b0</span>;
+        <span className="text-pink-400">case</span> (alu_sel)
+            <span className="text-orange-400">2'b00</span>: result = a & b;
+            <span className="text-orange-400">2'b01</span>: result = a | b;
+            <span className="text-orange-400">2'b10</span>: result = a ^ b;
+            <span className="text-orange-400">2'b11</span>: <span className="text-pink-400">begin</span>
+                result    = add_res<span className="text-slate-400">[3:0]</span>;
+                carry_out = add_res<span className="text-slate-400">[4]</span>;
+            <span className="text-pink-400">end</span>
+        <span className="text-pink-400">endcase</span>
+    <span className="text-pink-400">end</span>
+<span className="text-pink-400">endmodule</span>
+                        </code></pre>
+                    </div>
+                )}
+                {view === 'schematic' && (
+                    <div className="p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px] flex items-center justify-center">
+                        <svg width="300" height="300" viewBox="0 0 300 300" className="text-slate-400 font-mono">
+                            <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" strokeWidth="2"/>
+                            <text x="80" y="40" textAnchor="middle" fill="#cbd5e1" className="text-sm">A [3:0]</text>
+                            <line x1="220" y1="50" x2="220" y2="90" stroke="currentColor" strokeWidth="2"/>
+                            <text x="220" y="40" textAnchor="middle" fill="#cbd5e1" className="text-sm">B [3:0]</text>
+                            <polygon points="60,90 240,90 190,210 160,210 150,180 140,210 110,210" fill="#1e293b" stroke="#22d3ee" strokeWidth="3"/>
+                            <text x="150" y="140" textAnchor="middle" fill="#22d3ee" className="font-bold text-xl">ALU</text>
+                            <line x1="150" y1="210" x2="150" y2="260" stroke="currentColor" strokeWidth="2"/>
+                            <text x="150" y="275" textAnchor="middle" fill="#cbd5e1" className="text-sm">result</text>
+                        </svg>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const FSMLab = () => {
+    const [view, setView] = useState('schematic');
+    const [state, setState] = useState(0); // 0:IDLE, 1:RED, 2:GREEN, 3:YELLOW
+    const [counter, setCounter] = useState(0);
+
+    // FSM Logic replication
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCounter(c => {
+                let nextC = c + 1;
+                if (state === 0 && nextC > 9) { setState(1); return 0; }
+                if (state === 1 && nextC > 4) { setState(2); return 0; }
+                if (state === 2 && nextC > 4) { setState(3); return 0; }
+                if (state === 3 && nextC > 2) { setState(1); return 0; } // Loop back to RED
+                return nextC;
             });
-            modules.forEach(mod => {
-                mod.style.display = 'none';
-            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [state]);
 
-            // 3. Kích hoạt module được chọn
-            const activeBtn = document.getElementById(`btn-mod-${moduleId}`);
-            const activeMod = document.getElementById(`lab-module-${moduleId}`);
+    const resetFSM = () => { setState(0); setCounter(0); };
 
-            if (activeBtn) activeBtn.className = "lab-nav-btn px-4 py-2 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors whitespace-nowrap";
-            if (activeMod) activeMod.style.display = 'block';
+    // Derived states for UI
+    const isRed = state === 0 || state === 1;
+    const isGreen = state === 2;
+    const isYellow = state === 3;
 
-            // 4. Khởi tạo/Dừng trạng thái mạch tùy thuộc module
-            if (moduleId === 'fsm' && typeof initFSM === 'function') {
-                initFSM();
-            } else if (typeof stopFSM === 'function') {
-                stopFSM();
-            }
-        }
+    return (
+        <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch animate-in">
+            {/* LEFT COLUMN: INTERACTIVE UI */}
+            <div className="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full min-w-0">
+                <div className="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
+                
+                <div className="flex flex-col mb-8 gap-4 border-b border-slate-700 pb-6">
+                    <div>
+                        <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <TrafficCone className="text-yellow-400" size={20} /> Automated Traffic
+                        </h3>
+                        <p className="text-slate-500 text-xs mt-1">Clock is generated automatically (1Hz).</p>
+                    </div>
+                    <button onClick={resetFSM} className="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm transition-colors font-bold self-start active:translate-y-0.5">
+                        RSTN
+                    </button>
+                </div>
 
-        function switchLabTab(module, tab) {
-            const btnVerilog = document.getElementById(`btn-${module}-verilog`);
-            const btnSchematic = document.getElementById(`btn-${module}-schematic`);
-            const contentVerilog = document.getElementById(`content-${module}-verilog`);
-            const contentSchematic = document.getElementById(`content-${module}-schematic`);
+                <div className="flex-1 flex flex-col items-center justify-center mb-8">
+                    <div className="bg-[#0a0f18] p-8 rounded-full border border-slate-700 shadow-inner flex flex-col gap-6">
+                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isRed ? 'bg-red-500 border-red-300 shadow-[0_0_15px_#ef4444]' : 'bg-slate-900 border-slate-700'}`}></div>
+                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isYellow ? 'bg-yellow-500 border-yellow-300 shadow-[0_0_15px_#eab308]' : 'bg-slate-900 border-slate-700'}`}></div>
+                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isGreen ? 'bg-green-500 border-green-300 shadow-[0_0_15px_#22c55e]' : 'bg-slate-900 border-slate-700'}`}></div>
+                    </div>
+                </div>
 
-            const activeBtnClass = "px-4 py-2 text-sm font-mono text-cyan-400 bg-slate-900 border-t border-x border-slate-700 rounded-t-lg flex items-center gap-2";
-            const inactiveBtnClass = "px-4 py-2 text-sm font-mono text-slate-500 hover:text-slate-300 bg-transparent rounded-t-lg flex items-center gap-2 transition-colors";
+                <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center flex justify-between px-6">
+                    <div>
+                        <span className="text-[10px] text-slate-500 block mb-1">State Reg</span>
+                        <span className={`text-lg font-bold tracking-widest ${state===0?'text-slate-400':state===1?'text-red-400':state===2?'text-green-400':'text-yellow-400'}`}>
+                            {['IDLE','RED','GREEN','YELLOW'][state]}
+                        </span>
+                    </div>
+                    <div className="border-l border-slate-700 pl-6">
+                        <span className="text-[10px] text-slate-500 block mb-1">Counter</span>
+                        <span className="text-lg font-mono text-cyan-400">{counter}</span>
+                    </div>
+                </div>
+            </div>
 
-            if (tab === 'verilog') {
-                if (btnVerilog) btnVerilog.className = activeBtnClass;
-                if (btnSchematic) btnSchematic.className = inactiveBtnClass;
-                if (contentVerilog) { contentVerilog.classList.remove('hidden'); contentVerilog.classList.add('flex-1'); }
-                if (contentSchematic) { contentSchematic.classList.add('hidden'); contentSchematic.classList.remove('flex-1'); }
-            } else {
-                if (btnSchematic) btnSchematic.className = activeBtnClass;
-                if (btnVerilog) btnVerilog.className = inactiveBtnClass;
-                if (contentSchematic) { contentSchematic.classList.remove('hidden'); contentSchematic.classList.add('flex-1'); }
-                if (contentVerilog) { contentVerilog.classList.add('hidden'); contentVerilog.classList.remove('flex-1'); }
-            }
-        }
+            {/* RIGHT COLUMN: ENGINEERING VIEW */}
+            <div className="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
+                 <div className="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
+                    <button onClick={() => setView('schematic')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'schematic' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
+                        <GitMerge size={16} /> State_Diagram
+                    </button>
+                    <button onClick={() => setView('verilog')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'verilog' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
+                        <FileCode2 size={16} /> traffic_controller.sv
+                    </button>
+                </div>
 
-        // --- Logic cho FSM LAB (Automated Clock) ---
-        let fsmInterval = null;
-        let currentFsmState = 0; // 0: IDLE, 1: RED, 2: GREEN, 3: YELLOW
-        let fsmCounter = 0;
+                {view === 'schematic' && (
+                    <div className="p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px] flex items-center">
+                        <svg width="850" height="350" viewBox="0 0 850 350" className="block w-full h-auto min-w-[760px] text-slate-400 font-mono">
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" /></marker>
+                                <marker id="arrowActive" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" /></marker>
+                            </defs>
+                            
+                            {/* Simple State nodes rendering for brevity, highlighting active state */}
+                            {[
+                                {id: 0, label: 'IDLE', x: 50, color: state===0?'#22d3ee':'#0f172a', text: state===0?'#000':'#fff'},
+                                {id: 1, label: 'RED', x: 260, color: state===1?'#ef4444':'#450a0a', text: '#fff'},
+                                {id: 2, label: 'GREEN', x: 470, color: state===2?'#22c55e':'#052e16', text: '#fff'},
+                                {id: 3, label: 'YELLOW', x: 680, color: state===3?'#eab308':'#422006', text: '#fff'}
+                            ].map(s => (
+                                <g key={s.id}>
+                                    <rect x={s.x} y="100" width="140" height="85" rx="10" fill={s.color} stroke={state===s.id?'#fff':'#64748b'} strokeWidth="2"/>
+                                    <text x={s.x+70} y="145" fontWeight="bold" fill={s.text} textAnchor="middle">{s.label}</text>
+                                </g>
+                            ))}
+                            {/* Abstract transitions */}
+                            <line x1="195" y1="142" x2="250" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
+                            <line x1="405" y1="142" x2="460" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
+                            <line x1="615" y1="142" x2="670" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
+                            <path d="M 750 185 Q 540 280 335 185" fill="none" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
+                        </svg>
+                    </div>
+                )}
+                {view === 'verilog' && (
+                    <div className="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
+                        <pre><code><span className="text-slate-500 italic">// SystemVerilog FSM Snippet omitted for brevity, logic identical to previous HTML</span></code></pre>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
 
-        // Định nghĩa các hằng số từ mã SV
-        const IDLE_MAX = 9;
-        const RED_MAX = 4;
-        const GREEN_MAX = 4;
-        const YELLOW_MAX = 2;
+const LabsPage = () => {
+    const [activeLab, setActiveLab] = useState('alu');
+
+    return (
+        <div className="animate-in space-y-8 max-w-full mx-auto">
+            <div className="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Digital Lab</h2>
+                    <p className="text-slate-400 mt-3">Interactive RTL simulation. Select a module below to test.</p>
+                </div>
+                
+                <div className="bg-slate-900 p-1.5 rounded-lg border border-slate-700 flex gap-1 overflow-x-auto">
+                    <button onClick={() => setActiveLab('alu')} className={`px-4 py-2 rounded text-sm transition-colors whitespace-nowrap ${activeLab === 'alu' ? 'bg-cyan-900/50 text-cyan-400 border border-cyan-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'}`}>
+                        4-bit ALU
+                    </button>
+                    <button onClick={() => setActiveLab('fsm')} className={`px-4 py-2 rounded text-sm transition-colors whitespace-nowrap ${activeLab === 'fsm' ? 'bg-yellow-900/50 text-yellow-400 border border-yellow-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'}`}>
+                        Traffic Light FSM
+                    </button>
+                </div>
+            </div>
+
+            {/* Render Active Lab Module */}
+            {activeLab === 'alu' ? <ALULab /> : <FSMLab />}
+        </div>
+    );
+};
+
+const ContactPage = () => (
+    <div className="animate-in space-y-8 max-w-7xl mx-auto">
+        <div className="border-b border-slate-800 pb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Contact</h2>
+            <p className="text-slate-400 mt-3">Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a href="mailto:pquoctrung141205@gmail.com" className="glass-card rounded-xl p-6 hover:border-cyan-500/60 transition-all hover:-translate-y-1 block">
+                <Mail className="w-10 h-10 text-cyan-400 mb-4" />
+                <h3 className="text-xl font-bold text-slate-100 mb-1">Email</h3>
+                <p className="text-slate-400 text-sm">pquoctrung141205@gmail.com</p>
+            </a>
+
+            <a href="https://github.com/trungpham141205" target="_blank" rel="noreferrer" className="glass-card rounded-xl p-6 hover:border-emerald-500/60 transition-all hover:-translate-y-1 block">
+                <Github className="w-10 h-10 text-emerald-400 mb-4" />
+                <h3 className="text-xl font-bold text-slate-100 mb-1">GitHub</h3>
+                <p className="text-slate-400 text-sm">github.com/trungpham141205</p>
+            </a>
+        </div>
+    </div>
+);
+
+const AboutPage = () => (
+    <div className="animate-in max-w-7xl mx-auto py-8">
+      {/* 12-Column Grid / High Density Dashboard Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        function updateFSMDisplay() {
-            const redLed = document.getElementById('fsm-led-red');
-            const yellowLed = document.getElementById('fsm-led-yellow');
-            const greenLed = document.getElementById('fsm-led-green');
-            const stateText = document.getElementById('fsm-state-text');
-            const counterText = document.getElementById('fsm-counter-text');
+        {/* Profile Sidebar */}
+        <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col justify-between shadow-lg">
+          <div>
+            <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6">
+              <User size={40} className="text-slate-300" />
+            </div>
+            <h1 className="text-3xl font-mono font-bold text-slate-100 mb-2">Pham Quoc Trung</h1>
+            <h2 className="text-cyan-400 font-mono mb-6">Digital IC Design Learner</h2>
+            <p className="text-sm text-slate-400 leading-relaxed font-sans mb-6">
+              Passionate about transforming algorithms into optimal silicon structures. Strongly focused on RTL design, verification mindset, and FPGA prototyping.
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <a href="#" className="p-2 bg-slate-800 rounded hover:text-cyan-400 transition-colors"><Github size={20} /></a>
+            <a href="#" className="p-2 bg-slate-800 rounded hover:text-cyan-400 transition-colors"><Linkedin size={20} /></a>
+          </div>
+        </div>
+  
+        {/* Main Data View */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          
+          {/* Skills Matrix */}
+          <div className="glass-card rounded-xl p-6">
+            <h3 className="font-mono text-xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2">Skills Matrix</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Languages</h4>
+                <ul className="space-y-2 text-sm font-mono text-slate-300">
+                  <li>• Verilog / SystemVerilog</li>
+                  <li>• C / C++</li>
+                  <li>• Python</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Tools</h4>
+                <ul className="space-y-2 text-sm font-mono text-slate-300">
+                  <li>• Vivado</li>
+                  <li>• ModelSim / Questa</li>
+                  <li>• Quartus</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Domains</h4>
+                <ul className="space-y-2 text-sm font-mono text-slate-300">
+                  <li>• Computer Architecture</li>
+                  <li>• FSM Design</li>
+                  <li>• FPGA Prototyping</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+  
+          {/* Timeline */}
+          <div className="glass-card rounded-xl p-6 flex-1">
+            <h3 className="font-mono text-xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2">Learning Progression</h3>
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-violet-400 rounded-full mt-1.5 shadow-[0_0_10px_#8b5cf6]"></div>
+                  <div className="w-px h-full bg-slate-700 mt-2"></div>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg text-slate-200">CPU Architecture</h4>
+                  <p className="text-sm text-violet-400 font-mono mb-2">Current Phase</p>
+                  <p className="text-sm text-slate-400">Designing a single-cycle RV32I processor. Learning instruction fetching, decoding, execution, and memory mapping.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full mt-1.5"></div>
+                   <div className="w-px h-full bg-slate-700 mt-2"></div>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg text-slate-200">FSM & Control Logic</h4>
+                  <p className="text-sm text-yellow-400 font-mono mb-2">Previous Phase</p>
+                  <p className="text-sm text-slate-400">Mastered Moore and Mealy machines, state encoding, and next-state logic separation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+);
 
-            // Reset tất cả LED
-            redLed.style.background = '#0f172a'; redLed.style.borderColor = '#334155'; redLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
-            yellowLed.style.background = '#0f172a'; yellowLed.style.borderColor = '#334155'; yellowLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
-            greenLed.style.background = '#0f172a'; greenLed.style.borderColor = '#334155'; greenLed.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5)';
+// ==========================================
+// MAIN APP & NAVIGATION (Sidebar Layout as per HTML)
+// ==========================================
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
 
-            let stateName = "";
-            let colorClass = "";
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home': return <HomePage setPage={setCurrentPage} />;
+      case 'projects': return <ProjectsPage />;
+      case 'labs': return <LabsPage />;
+      case 'about': return <AboutPage />;
+      case 'contact': return <ContactPage />;
+      default: return <HomePage setPage={setCurrentPage} />;
+    }
+  };
 
-            if (currentFsmState === 0) { // IDLE -> Red ON
-                redLed.style.background = '#ef4444'; redLed.style.borderColor = '#fca5a5'; redLed.style.boxShadow = '0 0 15px #ef4444, inset 0 0 4px #fff';
-                stateName = "IDLE"; colorClass = "text-slate-400";
-            } else if (currentFsmState === 1) { // RED -> Red ON
-                redLed.style.background = '#ef4444'; redLed.style.borderColor = '#fca5a5'; redLed.style.boxShadow = '0 0 15px #ef4444, inset 0 0 4px #fff';
-                stateName = "RED"; colorClass = "text-red-400";
-            } else if (currentFsmState === 2) { // GREEN -> Green ON
-                greenLed.style.background = '#22c55e'; greenLed.style.borderColor = '#86efac'; greenLed.style.boxShadow = '0 0 15px #22c55e, inset 0 0 4px #fff';
-                stateName = "GREEN"; colorClass = "text-green-400";
-            } else if (currentFsmState === 3) { // YELLOW -> Yellow ON
-                yellowLed.style.background = '#eab308'; yellowLed.style.borderColor = '#fde047'; yellowLed.style.boxShadow = '0 0 15px #eab308, inset 0 0 4px #fff';
-                stateName = "YELLOW"; colorClass = "text-yellow-400";
-            }
+  const navItems = [
+    { id: 'home', label: 'Home', icon: <Terminal size={20}/> },
+    { id: 'projects', label: 'Projects', icon: <Layers size={20}/> },
+    { id: 'labs', label: 'Lab', icon: <Cpu size={20}/> },
+    { id: 'about', label: 'About', icon: <User size={20}/> },
+    { id: 'contact', label: 'Contact', icon: <Mail size={20}/> },
+  ];
 
-            stateText.innerText = stateName; 
-            stateText.className = `text-xl font-bold ${colorClass} tracking-widest`;
-            if(counterText) counterText.innerText = fsmCounter;
-        }
+  return (
+    <div className="relative flex min-h-screen w-full selection:bg-cyan-500/30">
+      <GlobalStyles />
+      {/* Backgrounds */}
+      <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-cyan-950/20 via-slate-950 to-emerald-950/10 pointer-events-none z-0"></div>
 
-        function tickFSM() {
-            let nextState = currentFsmState;
-            let counterClear = false;
+      {/* Sidebar Desktop */}
+      <aside className="hidden sm:flex w-20 md:w-72 border-r border-slate-800 bg-slate-900/70 backdrop-blur-md flex-col justify-between py-8 sticky top-0 h-screen shrink-0 z-20">
+        <div>
+            <div className="px-4 md:px-8 mb-12 flex items-center gap-3">
+                <Cpu className="w-8 h-8 text-cyan-400 shrink-0" />
+                <span className="font-bold text-xl hidden md:block text-slate-100">
+                    Trung<span className="text-cyan-400">.</span>IC
+                </span>
+            </div>
+            <nav className="space-y-2 px-2 md:px-4">
+                {navItems.map(item => {
+                    const isActive = currentPage === item.id;
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => setCurrentPage(item.id)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                                isActive 
+                                ? 'bg-cyan-950/40 text-cyan-400 border border-cyan-900/50 shadow-inner' 
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
+                            }`}
+                        >
+                            {item.icon}
+                            <span className="font-medium hidden md:block">{item.label}</span>
+                        </button>
+                    )
+                })}
+            </nav>
+        </div>
 
-            // Logic chuyển trạng thái dựa theo Counter
-            switch(currentFsmState) {
-                case 0: // IDLE
-                    if (fsmCounter === IDLE_MAX) { nextState = 1; counterClear = true; }
-                    break;
-                case 1: // RED
-                    if (fsmCounter === RED_MAX) { nextState = 2; counterClear = true; }
-                    break;
-                case 2: // GREEN
-                    if (fsmCounter === GREEN_MAX) { nextState = 3; counterClear = true; }
-                    break;
-                case 3: // YELLOW
-                    if (fsmCounter === YELLOW_MAX) { nextState = 1; counterClear = true; } // Quay về RED
-                    break;
-                default:
-                    nextState = 0; counterClear = true;
-            }
+        <div className="px-4 md:px-8 space-y-4">
+            <a href="https://github.com/trungpham141205" target="_blank" rel="noreferrer"
+                className="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-500/50 rounded-lg text-sm text-slate-400 hover:text-cyan-400 transition-colors">
+                <Github size={16} />
+                <span className="hidden md:block">GitHub Profile</span>
+            </a>
+        </div>
+      </aside>
 
-            currentFsmState = nextState;
-            
-            if (counterClear) {
-                fsmCounter = 0;
-            } else {
-                fsmCounter++;
-            }
+      {/* Mobile Nav */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-800 z-50 flex justify-around p-3 backdrop-blur">
+          {navItems.map(item => (
+              <button
+                  key={item.id}
+                  onClick={() => setCurrentPage(item.id)}
+                  className={`p-3 rounded-xl transition-colors ${currentPage === item.id ? 'text-cyan-400 bg-cyan-950/50 border border-cyan-900/50' : 'text-slate-500'}`}
+              >
+                  {item.icon}
+              </button>
+          ))}
+      </nav>
 
-            updateFSMDisplay();
-        }
-
-        function resetFSM() {
-            currentFsmState = 0; // Đưa về IDLE
-            fsmCounter = 0;      // Xóa counter
-            updateFSMDisplay();
-        }
-
-        function initFSM() {
-            resetFSM();
-            stopFSM(); // Đảm bảo không bị duplicate interval
-            fsmInterval = setInterval(tickFSM, 1000); // Tự động kích xung clock mỗi 1 giây
-        }
-
-        function stopFSM() {
-            if (fsmInterval) {
-                clearInterval(fsmInterval);
-                fsmInterval = null;
-            }
-        }
-
-        // --- Logic cho Interactive LAB (DIP Switches & LEDs) ---
-        let hwState = {
-            a: [0, 1, 0, 1],
-            b: [0, 0, 1, 1],
-            op: 'AND'
-        };
-
-        function toggleSwitch(inputGroup, bitIndex) {
-            hwState[inputGroup][bitIndex] = hwState[inputGroup][bitIndex] === 0 ? 1 : 0;
-            const swEl = document.getElementById(`sw-${inputGroup}-${bitIndex}`);
-            if (hwState[inputGroup][bitIndex] === 1) swEl.classList.add('active');
-            else swEl.classList.remove('active');
-            
-            updateALUDisplay();
-        }
-
-        function setOperation(op) {
-            hwState.op = op;
-            ['AND', 'OR', 'XOR', 'ADD'].forEach(o => {
-                const btn = document.getElementById(`op-${o}`);
-                if (o === op) {
-                    btn.className = "px-3 py-1.5 rounded bg-cyan-900/50 text-cyan-400 text-sm border border-cyan-800 transition-colors";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent text-sm transition-colors";
-                }
-            });
-            updateALUDisplay();
-        }
-
-        function updateALUDisplay() {
-            const valA = (hwState.a[3] << 3) | (hwState.a[2] << 2) | (hwState.a[1] << 1) | hwState.a[0];
-            const valB = (hwState.b[3] << 3) | (hwState.b[2] << 2) | (hwState.b[1] << 1) | hwState.b[0];
-
-            document.getElementById('val-a-dec').innerText = `Dec: ${valA}`;
-            document.getElementById('val-b-dec').innerText = `Dec: ${valB}`;
-
-            let result = 0;
-            if (hwState.op === 'AND') result = valA & valB;
-            if (hwState.op === 'OR') result = valA | valB;
-            if (hwState.op === 'XOR') result = valA ^ valB;
-            if (hwState.op === 'ADD') result = valA + valB;
-
-            const o0 = (result >> 0) & 1;
-            const o1 = (result >> 1) & 1;
-            const o2 = (result >> 2) & 1;
-            const o3 = (result >> 3) & 1;
-            const cout = (result >> 4) & 1;
-
-            const updateLED = (id, bit) => {
-                const led = document.getElementById(id);
-                if (bit === 1) led.classList.add('on');
-                else led.classList.remove('on');
-            };
-
-            updateLED('led-0', o0);
-            updateLED('led-1', o1);
-            updateLED('led-2', o2);
-            updateLED('led-3', o3);
-            updateLED('led-cout', cout);
-
-            document.getElementById('out-bin-text').innerText = `${cout}${o3}${o2}${o1}${o0}`;
-            document.getElementById('out-dec-text').innerText = result;
-        }
-
-        function initLab() {
-            for(let i=0; i<4; i++) {
-                if(hwState.a[i]===1) document.getElementById(`sw-a-${i}`).classList.add('active');
-                if(hwState.b[i]===1) document.getElementById(`sw-b-${i}`).classList.add('active');
-            }
-            updateALUDisplay();
-        }
-
-        // Typing effect
-        const typingLines = [
-            '~ $ source setup_env.sh',
-            '> Initializing Hardware Portfolio...',
-            '> Synthesizing RTL modules...',
-            '> Simulating testbenches... [PASS]',
-            '> Pham Quoc Trung: System Online_'
-        ];
-        let currentLine = 0; let currentChar = 0;
-        const typingEl = document.getElementById('typing-text');
-
-        function typeLine() {
-            if (!typingEl) return;
-            if (currentLine < typingLines.length) {
-                if (currentChar < typingLines[currentLine].length) {
-                    typingEl.innerHTML += typingLines[currentLine].charAt(currentChar);
-                    currentChar++;
-                    setTimeout(typeLine, 25);
-                } else {
-                    typingEl.innerHTML += '<br>';
-                    currentLine++; currentChar = 0;
-                    setTimeout(typeLine, 200);
-                }
-            } else {
-                typingEl.innerHTML = typingEl.innerHTML.replace('_', '<span class="cursor-blink font-bold text-emerald-400">_</span>');
-            }
-        }
-
-        // Boot
-        window.addEventListener('DOMContentLoaded', () => {
-            renderNav();
-            switchTab('home');
-            renderFilters();
-            renderProjects();
-            initLab();
-            setTimeout(typeLine, 600);
-        });
-    </script>
-</body>
-</html>
+      {/* Main Content Area */}
+      <main className="flex-1 min-w-0 w-full p-4 md:p-8 xl:p-10 pb-24 overflow-y-auto relative z-10">
+        {renderPage()}
+      </main>
+    </div>
+  );
+}
