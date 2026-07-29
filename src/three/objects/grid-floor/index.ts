@@ -12,8 +12,8 @@ let geometry: PlaneGeometry | null = null;
 let material: ShaderMaterial | null = null;
 
 const uniforms = {
-  uColor: { value: new Color("#0157A0").convertLinearToSRGB() },
-  uLineColor: { value: new Color("#34BCFD").convertLinearToSRGB() },
+  uColor: { value: new Color("#000000").convertLinearToSRGB() },
+  uLineColor: { value: new Color("#777da9").convertLinearToSRGB() },
   uOpacity: { value: 0 },
   uTime: { value: 0 },
   uProgress: { value: 0 },
@@ -45,7 +45,7 @@ const init = () => {
 const tick = () => {
   if (!mesh || !(mesh.material instanceof ShaderMaterial)) return;
 
-  mesh.material.uniforms.uOpacity!.value = 0.2 + 0.8 * sceneWeightsInOut.about.in;
+  mesh.material.uniforms.uOpacity!.value = 0.12 + 0.34 * sceneWeightsInOut.about.in;
   mesh.material.uniforms.uTime!.value = gsap.ticker.time;
   mesh.material.uniforms.uProgress!.value = aboutProgress.value;
 

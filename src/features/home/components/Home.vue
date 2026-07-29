@@ -19,6 +19,8 @@ import { useAgent } from "../../../composables/useAgent";
 import { projectId, projectVisible } from "../../../composables/useRouteObserver";
 import { isTransitioning } from "../../../composables/useProjectTransition";
 import { renderer } from "../../../three/core/renderer";
+import CosmicBackdrop from "../../../components/CosmicBackdrop.vue";
+import SignalTicker from "../../../components/SignalTicker.vue";
 
 const introRef = ref<HTMLElement | null>(null);
 const stickyObserver = ref<IntersectionObserver | null>(null);
@@ -141,6 +143,7 @@ watch(
       typeof projectId !== 'string' && isTransitioning && `home-wrapper-in`,
     ]"
   >
+    <CosmicBackdrop />
     <ScrollIcon />
     <Layout>
       <div class="intro-wrapper" ref="introRef">
@@ -158,6 +161,7 @@ watch(
         <div class="intro-wrapper-spacer"></div>
         <div class="about-spacer" ref="aboutSpacerRef" id="about"></div>
       </div>
+      <SignalTicker />
       <Projects id="projects" @loaded="handleProjectsLoaded" />
       <Labs id="lab" />
       <div ref="contactRef" class="home-contact">
@@ -189,6 +193,9 @@ watch(
 
 .home {
   &-wrapper {
+    position: relative;
+    isolation: isolate;
+    background: #000;
     transform-origin: center center;
 
     &-out {

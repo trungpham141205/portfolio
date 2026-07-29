@@ -6,6 +6,7 @@ import PreviewCard from "../../projects/components/PreviewCard.vue";
 import NotchSection from "../../../components/NotchSection.vue";
 import Banner from "../../../components/Banner.vue";
 import { t } from "../../../i18n/utils/translate";
+import SectionAtmosphere from "../../../components/SectionAtmosphere.vue";
 
 import type { ProjectPreview } from "../../../content/types";
 
@@ -31,6 +32,7 @@ onMounted(loadPreviews);
 
 <template>
   <div class="projects">
+    <SectionAtmosphere variant="work" />
     <NotchSection class="projects-notch-start" />
     <NotchSection class="projects-notch-end" />
     <div class="grid">
@@ -58,7 +60,8 @@ onMounted(loadPreviews);
   gap: var(--space-xxl);
   padding-left: var(--space-outer);
   padding-right: var(--space-outer);
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(2px);
   border-top: 1px solid var(--color-grayscale-500);
   min-height: calc(var(--lvh) * 100 + var(--radius-xxl));
   padding-top: 96px;
@@ -75,6 +78,7 @@ onMounted(loadPreviews);
   }
 
   &-title {
+    z-index: 1;
     position: relative;
     padding-top: var(--space-md);
     grid-column: 1 / 13;
@@ -132,6 +136,8 @@ onMounted(loadPreviews);
   }
 
   &-cards {
+    position: relative;
+    z-index: 1;
     max-width: 100%;
     flex: 1;
     grid-column: 1 / span 12;

@@ -7,8 +7,10 @@ import { lab } from "./lab";
 import { room } from "./room";
 import { sleepingSprite } from "./contact/sleeping-sprite";
 import { renderer } from "../core/renderer";
+import { cosmicPortal } from "./cosmic-portal";
 
 const init = () => {
+  cosmicPortal.init();
   avatarHologram.init();
   avatar.init();
   contact.init();
@@ -22,6 +24,7 @@ const init = () => {
 };
 
 const destroy = () => {
+  cosmicPortal.destroy();
   avatarHologram.destroy();
   avatar.destroy();
   contact.destroy();

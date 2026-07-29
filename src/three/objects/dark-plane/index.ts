@@ -59,7 +59,7 @@ const initMesh = () => {
     transparent: true,
     uniforms: {
       uTexture: { value: renderTarget.instance.texture },
-      uVignetteColor: { value: new Color("rgb(0, 15, 61)") },
+      uVignetteColor: { value: new Color("#000000") },
       ...uniforms,
     },
   });

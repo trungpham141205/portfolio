@@ -5,6 +5,7 @@ import BoxDescription from "./BoxDescription.vue";
 import BoxServices from "./BoxServices.vue";
 import BoxDetails from "./BoxDetails.vue";
 import ProgressCount from "./ProgressCount.vue";
+import SectionAtmosphere from "../../../components/SectionAtmosphere.vue";
 
 const contentDescriptionRef = ref<HTMLDivElement | null>(null);
 const contentServicesRef = ref<HTMLDivElement | null>(null);
@@ -49,6 +50,7 @@ watchEffect((onInvalidate) => {
 
 <template>
   <div class="about-content">
+    <SectionAtmosphere variant="about" />
     <div ref="contentDetailsRef" class="about-details">
       <BoxDetails @timeline:created="(tl: gsap.core.Timeline) => (tlDetailsRef = tl)" />
     </div>
@@ -83,6 +85,7 @@ watchEffect((onInvalidate) => {
   &-details,
   &-description,
   &-services {
+    z-index: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -101,6 +104,7 @@ watchEffect((onInvalidate) => {
   }
 
   &-progress-count {
+    z-index: 1;
     will-change: transform, opacity;
     position: absolute;
     bottom: 0;

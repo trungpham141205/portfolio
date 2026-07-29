@@ -60,7 +60,8 @@ const classes = computed(() => ["hologram-box", { "hologram-box-has-title": !!sl
     position: relative;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
     border-top-width: 0;
-    background: linear-gradient(to bottom, var(--color-hologram-top) 0%, var(--color-hologram-bottom) 95%);
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(4px);
     font-size: var(--font-size-md);
     line-height: var(--line-height-copy);
 
