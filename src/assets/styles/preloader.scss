@@ -1,0 +1,55 @@
+.preloader {
+  position: fixed;
+  z-index: var(--z-index-preloader);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.45s ease-in-out;
+  opacity: 1;
+
+  &-copy {
+    position: absolute;
+    inset: var(--space-outer);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    color: #808080;
+    font: 700 10px/1.5 "Urbanist", sans-serif;
+    letter-spacing: 0.16em;
+  }
+
+  &-svg {
+    width: 84px;
+    height: 84px;
+    transition:
+      transform 0.3s var(--ease-power2-in),
+      opacity 0.3s var(--ease-power2-in);
+  }
+
+  &-rect {
+    transform-origin: bottom center;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  &-path {
+    fill: #ffffff;
+  }
+
+  &-hidden {
+    opacity: 0;
+    pointer-events: none !important;
+
+    * {
+      pointer-events: none !important;
+    }
+
+    svg {
+      transform: scale(0.72);
+      opacity: 0;
+    }
+  }
+}
