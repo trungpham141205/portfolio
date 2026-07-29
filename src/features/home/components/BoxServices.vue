@@ -206,7 +206,8 @@ const services = [
   &-content {
     border: var(--stroke-sm) solid var(--color-cyan-400);
     border-radius: var(--radius-md);
-    background: rgba(0, 38, 89, 0.72);
+    background: rgba(0, 0, 0, 0.56);
+    backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);

@@ -1,5 +1,20 @@
 # Portfolio rebuild synthesis
 
+## Local cosmic-template enhancement
+
+The post-launch local review branch adds the remaining atmosphere described by `template/DESIGN.md` without changing the engineering contract:
+
+- a procedural Three.js portal with cyan-to-magenta rim light, wireframe emblem, star field and downward particle stream;
+- a fixed black-void backdrop with low-opacity aurora, orbital hairlines and slow star drift behind conventional sections;
+- template-derived ghost navigation, pill actions, a translucent interface-status panel and a continuous signal ticker;
+- frosted Work cards and transparent Work/Lab/Footer surfaces so the cosmic canvas remains visible;
+- monochrome/violet UI chrome while reserving richer cyan/magenta light for the rendered scene.
+- a true black About render target with restrained violet grid lines, leaving cyan only on the animated hologram;
+- viewport-aware orbit, wireframe, particle and sweep variants for About, Work, Lab and Contact.
+- rotating faceted wireframe crystals and traveling cyan-to-magenta rim segments behind Work, Lab and Contact only; About is intentionally excluded.
+
+This enhancement remains local until a new explicit approval. The six Work repositories, ALU/FSM behavior, HDL sources, routing fallback and public attribution remain unchanged.
+
 ## Source 1 — `template/`
 
 This folder defines the global visual system:

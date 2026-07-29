@@ -79,7 +79,8 @@ const { withSocial = true } = defineProps<Props>();
 
 <style scoped lang="scss">
 .footer {
-  background: var(--color-background-300, var(--color-beige-400));
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
   width: 100%;
   display: flex;
   justify-content: center;

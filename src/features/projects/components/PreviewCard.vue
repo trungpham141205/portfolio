@@ -63,6 +63,15 @@ onUnmounted(() => timeline.value?.kill());
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
+    height: 100%;
+    padding: clamp(14px, 2.1vw, 28px);
+    border: 1px solid #4d4d4d;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.46);
+    backdrop-filter: blur(4px);
+    transition:
+      border-color 0.3s ease,
+      background-color 0.3s ease;
   }
 
   &-top {
@@ -148,6 +157,11 @@ onUnmounted(() => timeline.value?.kill());
 
   @include mixins.hover {
     &:hover {
+      article {
+        border-color: #808080;
+        background: rgba(0, 0, 0, 0.62);
+      }
+
       .preview-card-top {
         transform: translateY(-6px);
       }

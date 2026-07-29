@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { transitions } from "../../../animations";
 import { t } from "../../../i18n/utils/translate";
 import Social from "../../../components/Social.vue";
+import SectionAtmosphere from "../../../components/SectionAtmosphere.vue";
 
 const contactElement = ref<HTMLElement | null>(null);
 
@@ -19,6 +20,7 @@ onUnmounted(() => {
 
 <template>
   <div class="contact grid" ref="contactElement">
+    <SectionAtmosphere variant="contact" />
     <div class="contact-content">
       <p class="contact-kicker">04 / CONTACT</p>
       <h2 class="contact-title" v-html="t('lets-work-together')"></h2>
@@ -34,6 +36,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .contact {
+  position: relative;
   width: 100%;
   max-width: calc(var(--svw) * 100);
   overflow: hidden;
@@ -46,6 +49,7 @@ onUnmounted(() => {
   }
 
   &-content {
+    z-index: 1;
     position: relative;
     padding-top: var(--space-md);
     grid-column: 1 / 13;

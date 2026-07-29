@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
+import SectionAtmosphere from "../../../components/SectionAtmosphere.vue";
 
 type Operation = "AND" | "OR" | "XOR" | "ADD";
 type Lab = "alu" | "fsm";
@@ -125,6 +126,7 @@ endmodule`;
 
 <template>
   <section class="labs">
+    <SectionAtmosphere variant="lab" />
     <div class="labs-shell grid">
       <header class="labs-header">
         <div>
@@ -259,9 +261,8 @@ endmodule`;
 .labs {
   position: relative;
   padding: 120px var(--space-outer);
-  background:
-    radial-gradient(circle at 70% 40%, rgba(52, 55, 85, 0.24), transparent 30%),
-    #050505;
+  background: rgba(0, 0, 0, 0.64);
+  backdrop-filter: blur(3px);
   border-top: 1px solid var(--color-grayscale-500);
   border-bottom: 1px solid var(--color-grayscale-500);
   color: #ffffff;
@@ -272,6 +273,8 @@ endmodule`;
   }
 
   &-shell {
+    position: relative;
+    z-index: 1;
     row-gap: var(--space-xl);
   }
 

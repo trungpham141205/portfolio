@@ -1,6 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { preloaderVisible } from "../../../composables/usePreloader";
 import { t } from "../../../i18n/utils/translate";
+import { lenis } from "../../../composables/useScroll";
+
+const scrollTo = (target: string) => {
+  lenis.value?.scrollTo(target);
+};
 </script>
 
 <template>
@@ -19,8 +24,24 @@ import { t } from "../../../i18n/utils/translate";
           </div>
         </div>
         <p class="hero-note">Verilog / SystemVerilog / RISC-V / FPGA</p>
+        <div class="hero-actions" v-if="!preloaderVisible">
+          <button class="hero-action hero-action-primary" type="button" @click="scrollTo('#projects')">
+            Explore work
+          </button>
+          <button class="hero-action hero-action-ghost" type="button" @click="scrollTo('#lab')">Open lab</button>
+        </div>
       </div>
     </div>
+    <aside class="hero-protocol" aria-label="Immersive portfolio interface status">
+      <div class="hero-protocol-copy">
+        <span>INTERFACE / 001</span>
+        <p>Cosmic signal path online. Scroll to move from architecture into live logic.</p>
+      </div>
+      <div class="hero-protocol-status">
+        <span><i></i> PORTAL / LIVE</span>
+        <span>VOID / 000</span>
+      </div>
+    </aside>
   </div>
 </template>
 
@@ -74,7 +95,7 @@ import { t } from "../../../i18n/utils/translate";
     &-copys {
       display: flex;
       flex-direction: column;
-        gap: var(--space-sm);
+      gap: var(--space-sm);
 
       @include mixins.mq("md") {
         gap: var(--space-md);
@@ -116,6 +137,47 @@ import { t } from "../../../i18n/utils/translate";
     text-transform: uppercase;
   }
 
+  &-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &-action {
+    min-height: 38px;
+    padding: 0 18px;
+    border-radius: 500px;
+    color: #fff;
+    font: 700 11px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease,
+      transform 0.25s ease;
+
+    &-primary {
+      border: 1px solid #343755;
+      background: #343755;
+    }
+
+    &-ghost {
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      background: rgba(0, 0, 0, 0.44);
+      backdrop-filter: blur(4px);
+    }
+
+    @include mixins.hover {
+      &:hover {
+        transform: translateY(-2px);
+        border-color: #fff;
+        background: #fff;
+        color: #000;
+      }
+    }
+  }
+
   &-kicker {
     width: 100%;
     display: flex;
@@ -131,8 +193,7 @@ import { t } from "../../../i18n/utils/translate";
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #8ef5bd;
-        box-shadow: 0 0 12px rgba(142, 245, 189, 0.45);
+        background: #c6c6c6;
       }
     }
   }
@@ -152,9 +213,95 @@ import { t } from "../../../i18n/utils/translate";
     font-weight: 700;
 
     > span:first-child {
-      color: #aeb3e8;
+      color: #c6c6c6;
       font-family: "ProFontWindows", monospace;
     }
+  }
+
+  &-protocol {
+    position: absolute;
+    z-index: 2;
+    left: var(--space-outer);
+    bottom: var(--space-outer);
+    width: min(360px, calc(100% - var(--space-outer) * 2));
+    padding: 16px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: grid;
+    gap: 14px;
+
+    &-copy {
+      display: grid;
+      gap: 6px;
+
+      > span {
+        color: #999;
+        font: 700 9px/1.4 "Urbanist", sans-serif;
+        letter-spacing: 0.16em;
+      }
+
+      p {
+        color: #fff;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+    }
+
+    &-status {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #4d4d4d;
+      color: #808080;
+      font: 700 8px/1 "Urbanist", sans-serif;
+      letter-spacing: 0.12em;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      i {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #c6c6c6;
+      }
+    }
+  }
+}
+
+@media (max-width: 839px) {
+  .hero-protocol {
+    bottom: 76px;
+    padding: 12px 14px;
+
+    &-copy p {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+  }
+}
+
+@media (max-width: 479px) {
+  .hero-protocol-status {
+    display: none;
+  }
+}
+
+@media (max-height: 690px) {
+  .hero-protocol {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-action {
+    transition: none;
   }
 }
 </style>
