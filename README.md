@@ -1,100 +1,68 @@
-<div align="center">
-  <h1>Digital IC Design Portfolio</h1>
-  <p><strong>Interactive RTL, verification, FPGA, CPU, and SoC project portfolio</strong></p>
-  <p>
-    <a href="https://trungpham141205.github.io/portfolio/">
-      <img src="https://img.shields.io/badge/Live%20Site-Open-7C3AED?style=flat-square&logo=googlechrome&logoColor=white" alt="Open live portfolio" />
-    </a>
-    <img src="https://img.shields.io/badge/React-Interactive%20UI-149ECA?style=flat-square&logo=react" alt="React" />
-    <img src="https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
-    <img src="https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  </p>
-</div>
+# Pham Quoc Trung — Digital IC Design Portfolio
 
-## Overview
+An immersive portfolio for RTL, FPGA, RISC-V and SoC work. The site combines a scroll-driven Three.js scene with six hardware case studies and two interactive digital-logic labs.
 
-This repository contains the source for Pham Quoc Trung's hardware-engineering portfolio. It presents the progression from foundational RTL blocks to RISC-V and SoC integration, while providing interactive browser-based labs for digital-logic concepts.
+Live site: [trungpham141205.github.io/portfolio](https://trungpham141205.github.io/portfolio/).
 
-The live site is available at [trungpham141205.github.io/portfolio](https://trungpham141205.github.io/portfolio/).
+## Portfolio content
 
-## Portfolio sections
+- RV32I Single-Cycle CPU
+- SoC RV32I CNN
+- Traffic Light Controller
+- SIPO 8-bit Register
+- Carry Lookahead Adder
+- Ripple Carry Adder 32-bit
+- Interactive 4-bit ALU lab with source/logic views
+- Interactive four-state Traffic FSM with source/logic views
 
-| Section | Content |
-|---|---|
-| Home | Engineering focus, current direction, and highlighted capabilities |
-| Projects | Filterable CPU, SoC, FSM, sequential, and arithmetic project cards |
-| Digital Lab | Interactive 4-bit ALU and traffic-light FSM demonstrations |
-| About | Skills matrix and learning progression |
-| Contact | Direct portfolio contact links |
+The browser labs are educational behavioral models. They preserve the original operations, state timing and HDL source presentation, but do not compile the linked repositories in the browser.
 
-## Technical implementation
+## Stack
 
-- Single-page React application with client-side view switching.
-- Vite development and production build flow.
-- Tailwind CSS utility styling plus custom component styles.
-- Lucide icon set.
-- Responsive desktop sidebar and mobile navigation.
-- Browser-only ALU and FSM models for interactive demonstrations.
-- GitHub Pages deployment through the `gh-pages` package.
+- Vue 3 and TypeScript
+- Vite with a GitHub Pages base path
+- Three.js and GLSL for the full-viewport scene
+- GSAP and Lenis for scroll-linked motion
+- Howler for optional ambient sound
+- SCSS for the design system and responsive layouts
 
-The interactive labs are educational front-end models; they do not compile or simulate the RTL repositories in the browser.
-
-## Run locally
-
-Prerequisites:
-
-- Node.js 18 or later;
-- npm.
-
-Install the locked dependency set and start the development server:
+## Local review flow
 
 ```bash
 npm ci
-npm run dev
-```
-
-Create a production build:
-
-```bash
+npm run typecheck
 npm run build
-```
-
-Preview the generated `dist/` directory:
-
-```bash
 npm run preview
 ```
 
-Deploy to GitHub Pages:
+Open `http://localhost:4173/portfolio/`.
 
-```bash
-npm run deploy
-```
+The production build also creates `dist/404.html`. This lets GitHub Pages restore client-side project routes on direct load or refresh instead of displaying a blank/404 page.
 
-## Repository structure
+## Content structure
 
 ```text
-.
-├── index.html
-├── src/
-│   ├── App.jsx       # Pages, project data, interactive labs, and navigation
-│   ├── index.css     # Tailwind entry point
-│   └── main.jsx      # React application bootstrap
-├── package.json
-├── package-lock.json
-├── tailwind.config.js
-├── postcss.config.js
-└── vite.config.js
+src/
+├── content/projects/          # Hardware case-study data and repository links
+├── features/home/components/ # Hero, 3D about flow, Work, Lab and Contact
+├── features/projects/        # Work cards, diagrams and detail overlays
+├── three/                    # Scene, models, shaders and scroll-driven camera
+└── assets/styles/            # Cosmic UI tokens and responsive global styles
 ```
 
-## Current limitations
+## Design sources and attribution
 
-- Several project-card URLs are placeholders and should be replaced with their repository links.
-- Footer social icons still contain placeholder destinations.
-- Project content is embedded directly in `App.jsx`; moving it to structured data would simplify maintenance.
-- No automated UI, accessibility, or link-validation tests are included.
+The UI system follows the local `template/DESIGN.md`: black void, monochrome ghost UI, hairline borders, restrained dusk-violet accents and scene-led motion.
 
-## Related links
+The experience architecture, 3D scene, models, shaders, interaction patterns and substantial source portions are adapted from David Heckhoff’s Portfolio 2025. Original work: [david-hckh.com](https://david-hckh.com).
 
-- [GitHub profile](https://github.com/trungpham141205)
-- [RTL and hardware repositories](https://github.com/trungpham141205?tab=repositories)
+That source is licensed for personal and educational use with required attribution. Commercial use or redistribution of substantial portions requires the original author’s permission. See [THIRD_PARTY_LICENSE.md](./THIRD_PARTY_LICENSE.md).
+
+## Reusable workflow
+
+The review, rebuild, validation and approval-gated publishing process is captured in [`skills/rebuild-cosmic-hardware-portfolio/SKILL.md`](./skills/rebuild-cosmic-hardware-portfolio/SKILL.md) for future Codex sessions.
+
+## Contact
+
+- Email: [pquoctrung141205@gmail.com](mailto:pquoctrung141205@gmail.com)
+- GitHub: [trungpham141205](https://github.com/trungpham141205)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rebuild Cosmic Hardware Portfolio"
+  short_description: "Rebuild and safely publish this RTL portfolio"
+  default_prompt: "Use $rebuild-cosmic-hardware-portfolio to review the reference templates, preserve Work and Lab engineering content, rebuild the site, and gate GitHub publishing behind local approval."

@@ -3,27 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pham Quoc Trung | Digital IC Design Portfolio</title>
-    <meta name="description" content="Portfolio of Pham Quoc Trung — Digital IC Design learner specializing in RTL design, FPGA prototyping, CPU architecture, and hardware verification. Explore interactive labs and RISC-V projects." />
-    <meta name="author" content="Pham Quoc Trung" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#050505" />
+    <meta
+      name="description"
+      content="Pham Quoc Trung — Digital IC design portfolio featuring RTL, RISC-V, FPGA, SoC projects and interactive digital logic labs."
+    />
+    <meta name="robots" content="index, follow" />
+    <title>Pham Quoc Trung — Digital IC Design</title>
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Pham Quoc Trung | Digital IC Design Portfolio" />
-    <meta property="og:description" content="RTL Design, FPGA Prototyping, RISC-V CPU Architecture — Interactive hardware portfolio with live ALU and FSM simulations." />
-    <meta property="og:url" content="https://trungpham141205.github.io/portfolio/" />
-
-    <!-- Preconnect & Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-
-    <!-- SVG Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='none' stroke='white' stroke-width='4'/><path d='M50 23 70 50 50 77 30 50Z' fill='none' stroke='white' stroke-width='4'/></svg>" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+  <body class="is-loading">
+    <svg class="svg-definitions" aria-hidden="true" viewBox="0 0 56 61" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path
+          id="logo-path"
+          d="M3 14 24 2C28 0 28 0 32 2L53 14C56 16 56 17 56 19L56 43C56 46 55 47 51 49L32 59C28 61 28 61 24 59L5 49C1 47 0 46 0 43L0 19C0 17 0 16 3 14M28 4 5 17 28 28 51 17 28 4M53 20 30 31 30 56 53 44 53 20M40 42 33 35C33 35 32 34 33 33 34 32 35 33 36 34L43 41C44 42 44 42 43 43L35 51C35 51 34 52 33 51 32 50 33 49 33 49L40 42M16 42 23 35C23 35 24 34 23 33 22 32 21 33 20 34L13 41C12 42 12 42 13 43L21 51C21 51 22 52 23 51 24 50 23 49 23 49L16 42"
+        />
+      </defs>
+    </svg>
+    <div id="app"></div>
+    <div class="preloader" aria-label="Loading portfolio">
+      <div class="preloader-copy">
+        <span>RTL / PORTFOLIO</span>
+        <span class="preloader-percent">LOADING</span>
+      </div>
+      <svg class="preloader-svg" viewBox="0 0 56 61" xmlns="http://www.w3.org/2000/svg">
+        <mask id="preloader-mask">
+          <rect fill="black" height="61" width="61"></rect>
+          <rect fill="white" height="61" width="61" class="preloader-rect" style="transform: scaleY(0)"></rect>
+        </mask>
+        <use href="#logo-path" class="preloader-path" opacity="0.25"></use>
+        <use href="#logo-path" class="preloader-path" mask="url(#preloader-mask)"></use>
+      </svg>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
