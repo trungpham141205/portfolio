@@ -1,874 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Terminal, Cpu, BookOpen, User, Mail, Search, 
-  ArrowRight, ExternalLink, Code, Layers,
-  Workflow, Binary, MoveRight, Zap, PlusSquare, Network, TrafficCone, FileCode2, GitMerge
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import CosmicScene from './components/CosmicScene';
+import HomePage from './pages/HomePage';
+import ProjectsPage from './pages/ProjectsPage';
+import LabsPage from './pages/LabsPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 
-// Brand icons are not always exported by the newest lucide-react versions.
-// Keep the original component names used in the UI, but render them as inline SVGs.
-const Github = ({ size = 24, className = '', ...props }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    aria-hidden="true"
-    className={className}
-    {...props}
-  >
-    <path d="M12 2C6.48 2 2 6.58 2 12.24c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.5v-1.75c-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.1-1.5-1.1-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.55-1.14-4.55-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.35 9.35 0 0 1 12 6.92c.85 0 1.7.12 2.5.34 1.9-1.33 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9v2.82c0 .28.18.6.69.5A10.08 10.08 0 0 0 22 12.24C22 6.58 17.52 2 12 2z" />
-  </svg>
-);
-
-const Linkedin = ({ size = 24, className = '', ...props }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    aria-hidden="true"
-    className={className}
-    {...props}
-  >
-    <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V23h-4V8zm7.5 0h3.84v2.05h.05c.54-1.02 1.86-2.1 3.83-2.1 4.1 0 4.86 2.7 4.86 6.2V23h-4v-7.85c0-1.87-.03-4.27-2.6-4.27-2.6 0-3 2.03-3 4.13V23h-4V8z" transform="translate(1.7 0)" />
-  </svg>
-);
-
-
-
-// ==========================================
-// GLOBAL STYLES & TOKENS (Merged Design System + Hardware Lab UI)
-// ==========================================
-const GlobalStyles = () => (
-  <style dangerouslySetInnerHTML={{__html: `
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
-    :root {
-      /* Colors based on MASTER.md and Lab UI */
-      --color-primary: #1E3A5F;
-      --color-secondary: #2563EB;
-      --color-accent: #A16207;
-      
-      --color-bg-dark: #111827;      /* Main background (Slate 900) */
-      --color-bg-card: rgba(51, 65, 85, 0.58); /* Glass card background */
-      --color-border-subtle: rgba(148, 163, 184, 0.38);
-      
-      --color-text-main: #cbd5e1;    /* Slate 300 */
-      --color-text-heading: #f8fafc; /* Slate 50 */
-      
-      --color-cyan: #22d3ee;
-      --color-emerald: #10b981;
-      --color-violet: #8b5cf6;
-      --color-yellow: #eab308;
-      --color-pink: #ec4899;
-      --color-red: #ef4444;
-      --color-green: #22c55e;
-    }
-
-    body {
-      background-color: var(--color-bg-dark);
-      color: var(--color-text-main);
-      font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      min-height: 100vh;
-    }
-
-    h1, h2, h3, h4, h5, h6, .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* Grid Background Pattern */
-    .bg-grid-pattern {
-      background-size: 40px 40px;
-      background-image:
-          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-in {
-      animation: fadeIn 0.45s ease-out forwards;
-    }
-
-    @keyframes pulse-slow {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-    .cursor-blink { animation: pulse-slow 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-
-    /* Core UI Components */
-    .glass-card {
-        background: var(--color-bg-card);
-        border: 1px solid var(--color-border-subtle);
-        backdrop-filter: blur(10px);
-        transition: all 200ms ease;
-    }
-    .glass-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px -5px rgba(34, 211, 238, 0.1);
-    }
-
-    /* Hardware UI Specifics */
-    .hw-switch-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .hw-switch {
-        position: relative; width: 24px; height: 48px; background: #1e293b;
-        border: 2px solid #334155; border-radius: 4px; cursor: pointer;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;
-    }
-    .hw-switch::after {
-        content: ''; position: absolute; bottom: 2px; left: 2px; width: 16px; height: 20px;
-        background: #cbd5e1; border-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .hw-switch.active::after {
-        bottom: 22px; background: var(--color-cyan); box-shadow: 0 -2px 4px rgba(34, 211, 238, 0.4);
-    }
-
-    .hw-led {
-        width: 20px; height: 20px; border-radius: 50%; background: #0f172a;
-        border: 2px solid #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        transition: all 0.15s;
-    }
-    .hw-led.on {
-        background: var(--color-cyan); border-color: #67e8f9;
-        box-shadow: 0 0 10px var(--color-cyan), 0 0 20px var(--color-cyan), inset 0 0 4px #fff;
-    }
-  `}} />
-);
-
-// ==========================================
-// PAGES & COMPONENTS
-// ==========================================
-
-const HomePage = ({ setPage }) => {
-  const [typingText, setTypingText] = useState('');
-  const typingLines = [
-    '~ $ source setup_env.sh\n',
-    '> Initializing Hardware Portfolio...\n',
-    '> Synthesizing RTL modules...\n',
-    '> Simulating testbenches... [PASS]\n',
-    '> Pham Quoc Trung: System Online_'
-  ];
+function useHashRoute(defaultRoute = 'home') {
+  const getRoute = () => window.location.hash.slice(1) || defaultRoute;
+  const [page, setPage] = useState(getRoute);
 
   useEffect(() => {
-    let currentLine = 0;
-    let currentChar = 0;
-    let text = '';
-    let isMounted = true;
-
-    const typeLine = () => {
-      if (!isMounted) return;
-      
-      if (currentLine < typingLines.length) {
-        if (currentChar < typingLines[currentLine].length) {
-          text += typingLines[currentLine].charAt(currentChar);
-          setTypingText(text);
-          currentChar++;
-          setTimeout(typeLine, 25);
-        } else {
-          currentLine++;
-          currentChar = 0;
-          setTimeout(typeLine, 200);
-        }
-      } else {
-         setTypingText(text.replace('_', '')); // Remove static underscore for blinking one
-      }
-    };
-
-    setTimeout(typeLine, 600);
-    return () => { isMounted = false; };
+    const handleRouteChange = () => setPage(getRoute());
+    window.addEventListener('hashchange', handleRouteChange);
+    return () => window.removeEventListener('hashchange', handleRouteChange);
   }, []);
 
-  return (
-    <div className="animate-in space-y-12 max-w-7xl mx-auto">
-      <div className="space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 text-cyan-300 text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Status: Open to Work
-        </div>
-
-        <h1 className="text-4xl md:text-6xl font-bold text-slate-100 font-mono tracking-tight leading-tight">
-            HI, I'M <br className="md:hidden" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
-                PHAM QUOC TRUNG
-            </span>
-        </h1>
-
-        <h2 className="text-xl md:text-2xl text-slate-400 font-mono">
-            &lt;Digital IC Design Learner / RTL & FPGA Builder /&gt;
-        </h2>
-
-        <p className="max-w-3xl text-slate-400 leading-relaxed">
-            I am building a practical digital design portfolio focused on RTL design,
-            verification mindset, FPGA prototyping, CPU architecture, and SoC-level integration.
-            My current learning path moves from combinational blocks to sequential circuits,
-            FSMs, RISC-V CPU design, and system-level hardware architecture.
-        </p>
-
-        <div className="flex flex-wrap gap-4">
-            <button onClick={() => setPage('projects')} className="px-5 py-3 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-                View RTL Projects
-                <ArrowRight size={18} />
-            </button>
-
-            <button onClick={() => setPage('labs')} className="px-5 py-3 rounded-lg border border-slate-600 bg-slate-800/50 text-slate-200 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-2">
-                <Cpu size={18} />
-                Interactive Lab
-            </button>
-        </div>
-
-        {/* Console Animation */}
-        <div className="font-mono text-cyan-400 bg-slate-950/90 p-6 rounded-xl border border-slate-700 shadow-[0_0_20px_rgba(34,211,238,0.05)] h-48 flex flex-col justify-end max-w-3xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-emerald-500"></div>
-            <div className="absolute top-2 right-4 flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
-                <div className="w-3 h-3 rounded-full bg-slate-700"></div>
-            </div>
-            <div className="whitespace-pre-line text-sm md:text-base">
-                {typingText}
-                {typingText.length === typingLines.join('').length -1 && <span className="cursor-blink font-bold text-emerald-400">_</span>}
-            </div>
-        </div>
-      </div>
-
-      {/* Highlights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass-card p-6 rounded-xl border-t-4 border-t-cyan-500 cursor-pointer">
-              <Binary className="text-cyan-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-slate-100 mb-2">RTL Design</h3>
-              <p className="text-sm text-slate-400">Verilog/SystemVerilog modules including adders, registers, FSMs, and CPU datapath blocks.</p>
-          </div>
-          <div className="glass-card p-6 rounded-xl border-t-4 border-t-emerald-500 cursor-pointer">
-              <Workflow className="text-emerald-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-slate-100 mb-2">Verification</h3>
-              <p className="text-sm text-slate-400">Testbench-driven learning, expected results checking, corner cases, and waveform inspection.</p>
-          </div>
-          <div className="glass-card p-6 rounded-xl border-t-4 border-t-violet-500 cursor-pointer">
-              <Cpu className="text-violet-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-slate-100 mb-2">CPU Architecture</h3>
-              <p className="text-sm text-slate-400">Focus on RV32I single-cycle CPU, memory-mapped architecture, and future SoC integration.</p>
-          </div>
-      </div>
-    </div>
-  );
-};
-
-const ProjectsPage = () => {
-  const [activeFilter, setActiveFilter] = useState('All');
-  const filters = ['All', 'CPU', 'SoC', 'FSM', 'Sequential', 'Arithmetic'];
-  
-  const projectsData = [
-    { title: 'RV32I Single-Cycle CPU', repo: 'RV32I_Single_Cycle', url: '#', category: 'CPU', level: 'Advanced', icon: <Cpu/>, color: 'violet', description: 'A RISC-V RV32I single-cycle processor project focused on datapath integration, instruction decode, ALU control, register file, and memory interface thinking.', highlights: ['RV32I CPU architecture', 'Single-cycle datapath', 'Control unit and ALU control', 'Good foundation for SoC integration'], tags: ['RISC-V', 'RV32I', 'CPU', 'Verilog'] },
-    { title: 'SoC RV32I CNN', repo: 'SoC-RV32I-CNN-', url: '#', category: 'SoC', level: 'Advanced', icon: <Network/>, color: 'pink', description: 'Early SoC exploration combining an RV32I direction with accelerator-level thinking.', highlights: ['System-level hardware thinking', 'CPU plus accelerator direction', 'Memory-mapped architecture'], tags: ['SoC', 'Accelerator'] },
-    { title: 'Traffic Light Controller', repo: 'TRAFFIC_LIGHT_CONTROLLER', url: '#', category: 'FSM', level: 'Intermediate', icon: <TrafficCone/>, color: 'yellow', description: 'FSM-based traffic light controller project for practicing state encoding and next-state logic.', highlights: ['FSM design', 'State register logic', 'Counter-based timing'], tags: ['FSM', 'SystemVerilog'] },
-    { title: 'SIPO 8-bit Register', repo: 'SIPO_8_BIT', url: '#', category: 'Sequential', level: 'Intermediate', icon: <MoveRight/>, color: 'emerald', description: 'Serial-In Parallel-Out register design for practicing flip-flop chains and reset behavior.', highlights: ['Sequential logic', 'D flip-flop chain', 'Timing-aware verification'], tags: ['SIPO', 'Flip-Flop'] },
-    { title: 'Carry Lookahead Adder', repo: 'CLA_4_BIT', url: '#', category: 'Arithmetic', level: 'Intermediate', icon: <Zap/>, color: 'cyan', description: 'A 4-bit Carry Lookahead Adder project focused on generate/propagate logic.', highlights: ['Generate/propagate logic', 'Fast carry computation', 'Combinational optimization'], tags: ['CLA', 'Adder', 'Combinational'] },
-    { title: 'Ripple Carry Adder 32-bit', repo: 'Ripple_Carry_Adder_32bit', url: '#', category: 'Arithmetic', level: 'Intermediate', icon: <PlusSquare/>, color: 'cyan', description: 'A 32-bit ripple carry adder scaling basic full-adder composition into a wider datapath.', highlights: ['32-bit datapath', 'Full-adder chaining', 'Carry propagation'], tags: ['RCA', 'Datapath'] }
-  ];
-
-  const visibleProjects = activeFilter === 'All' ? projectsData : projectsData.filter(p => p.category === activeFilter);
-
-  const getColorClasses = (color) => {
-      const map = { 
-          cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-950/30 border-t-cyan-500', 
-          emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/30 border-t-emerald-500', 
-          violet: 'text-violet-400 border-violet-500/30 bg-violet-950/30 border-t-violet-500', 
-          pink: 'text-pink-400 border-pink-500/30 bg-pink-950/30 border-t-pink-500', 
-          yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-950/30 border-t-yellow-500' 
-      };
-      return map[color] || 'text-slate-300 border-slate-600 bg-slate-800/60 border-t-slate-500';
+  const navigate = (route) => {
+    if (route === page) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    window.location.hash = route;
   };
 
-  return (
-    <div className="animate-in space-y-8 max-w-7xl mx-auto">
-      <div className="border-b border-slate-800 pb-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Project Portfolio</h2>
-        <p className="text-slate-400 mt-3 max-w-2xl">
-            A curated list of my GitHub repositories demonstrating my progression from basic combinatorial logic to full system architectures.
-        </p>
-      </div>
-
-      {/* Filter */}
-      <div className="flex flex-wrap gap-2">
-        {filters.map(filter => (
-           <button 
-             key={filter}
-             onClick={() => setActiveFilter(filter)} 
-             className={`px-4 py-2 rounded-lg border text-sm font-mono transition-colors ${
-                 filter === activeFilter ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-900/70 text-slate-400 border-slate-700 hover:text-cyan-400'
-             }`}
-           >
-             {filter}
-           </button>
-        ))}
-      </div>
-
-      {/* Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {visibleProjects.map((project, idx) => {
-            const colorClass = getColorClasses(project.color);
-            return (
-                <div key={idx} className={`glass-card rounded-xl p-6 flex flex-col h-full border-t-2 ${colorClass.split(' ').pop()}`}>
-                    <div className="flex-1">
-                        <div className="flex items-start justify-between gap-4 mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorClass.split(' ').slice(0, 3).join(' ')}`}>
-                                    {React.cloneElement(project.icon, { size: 20 })}
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-100 leading-tight">{project.title}</h3>
-                            </div>
-                            <span className={`text-[10px] px-2 py-1 rounded border uppercase tracking-wider ${colorClass.split(' ').slice(0, 3).join(' ')}`}>
-                                {project.level}
-                            </span>
-                        </div>
-                        <p className="text-slate-400 text-sm mb-4">{project.description}</p>
-                        <ul className="space-y-1.5 mb-6">
-                            {project.highlights.slice(0, 3).map((item, i) => (
-                                <li key={i} className="flex items-start gap-2 text-xs text-slate-400">
-                                    <span className="text-emerald-400 mt-0.5 shrink-0">✓</span> {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="mt-auto pt-4 border-t border-slate-800/50 flex justify-between items-center">
-                        <div className="flex gap-2 flex-wrap">
-                            {project.tags.slice(0,2).map(tag => (
-                                <span key={tag} className="text-[10px] px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">{tag}</span>
-                            ))}
-                        </div>
-                        <a href={project.url} className="p-2 text-slate-400 hover:text-cyan-400 bg-slate-800 rounded-lg transition-colors"><Github size={16} /></a>
-                    </div>
-                </div>
-            )
-        })}
-      </div>
-    </div>
-  );
-};
-
-// Interactive Components for Lab
-const ALULab = () => {
-    const [view, setView] = useState('verilog');
-    const [hwState, setHwState] = useState({ a: [0, 1, 0, 1], b: [0, 0, 1, 1], op: 'AND' });
-
-    const toggleSwitch = (inputGroup, bitIndex) => {
-        const newState = {...hwState};
-        newState[inputGroup][bitIndex] = newState[inputGroup][bitIndex] === 0 ? 1 : 0;
-        setHwState(newState);
-    };
-
-    const valA = (hwState.a[3] << 3) | (hwState.a[2] << 2) | (hwState.a[1] << 1) | hwState.a[0];
-    const valB = (hwState.b[3] << 3) | (hwState.b[2] << 2) | (hwState.b[1] << 1) | hwState.b[0];
-
-    let result = 0;
-    if (hwState.op === 'AND') result = valA & valB;
-    if (hwState.op === 'OR') result = valA | valB;
-    if (hwState.op === 'XOR') result = valA ^ valB;
-    if (hwState.op === 'ADD') result = valA + valB;
-
-    const o0 = (result >> 0) & 1; const o1 = (result >> 1) & 1;
-    const o2 = (result >> 2) & 1; const o3 = (result >> 3) & 1;
-    const cout = (result >> 4) & 1;
-
-    return (
-        <div className="grid grid-cols-1 xl:grid-cols-[420px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch animate-in">
-            {/* LEFT COLUMN: INTERACTIVE UI */}
-            <div className="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-cyan-500 relative overflow-hidden flex flex-col h-full min-w-0">
-                <div className="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">BOARD</div>
-                
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-700 pb-6">
-                    <div>
-                        <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                            <Cpu className="text-cyan-400" size={20} /> FPGA Interface View
-                        </h3>
-                    </div>
-                    
-                    <div className="bg-slate-900 p-2 rounded-lg border border-slate-700 flex gap-2">
-                        {['AND', 'OR', 'XOR', 'ADD'].map(op => (
-                            <button key={op} onClick={() => setHwState({...hwState, op})}
-                                className={`px-3 py-1.5 rounded text-sm transition-colors border ${hwState.op === op ? 'bg-cyan-900/50 text-cyan-400 border-cyan-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border-transparent'}`}>
-                                {op}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 flex-1">
-                    {/* Input A */}
-                    <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-sm text-slate-400 font-bold">Input A [3:0]</span>
-                            <span className="text-xs text-slate-500">Dec: {valA}</span>
-                        </div>
-                        <div className="flex justify-between px-2">
-                            {[3, 2, 1, 0].map(bit => (
-                                <div key={bit} className="hw-switch-container">
-                                    <div className={`hw-switch ${hwState.a[bit] ? 'active' : ''}`} onClick={() => toggleSwitch('a', bit)}></div>
-                                    <span className="text-[10px] text-slate-500 mt-1">A{bit}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Input B */}
-                    <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-sm text-slate-400 font-bold">Input B [3:0]</span>
-                            <span className="text-xs text-slate-500">Dec: {valB}</span>
-                        </div>
-                        <div className="flex justify-between px-2">
-                            {[3, 2, 1, 0].map(bit => (
-                                <div key={bit} className="hw-switch-container">
-                                    <div className={`hw-switch ${hwState.b[bit] ? 'active' : ''}`} onClick={() => toggleSwitch('b', bit)}></div>
-                                    <span className="text-[10px] text-slate-500 mt-1">B{bit}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Output LEDs */}
-                <div className="bg-[#0a0f18] p-6 rounded-xl border border-slate-700 shadow-inner flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-6 font-bold flex items-center gap-2">
-                        <Zap className="text-yellow-400" size={16} /> Result Output (LEDs)
-                    </span>
-                    
-                    <div className="flex gap-6 md:gap-8">
-                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${cout ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">COUT</span></div>
-                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o3 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O3</span></div>
-                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o2 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O2</span></div>
-                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o1 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O1</span></div>
-                        <div className="flex flex-col items-center gap-3"><div className={`hw-led ${o0 ? 'on' : ''}`}></div><span className="text-[10px] text-slate-500">O0</span></div>
-                    </div>
-
-                    <div className="mt-6 text-center">
-                        <span className="text-xs text-slate-500">Binary: </span>
-                        <span className="text-cyan-400 font-bold ml-1 tracking-widest">{`${cout}${o3}${o2}${o1}${o0}`}</span>
-                        <span className="text-xs text-slate-500 ml-4">Decimal: </span>
-                        <span className="text-emerald-400 font-bold ml-1">{result}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT COLUMN: ENGINEERING VIEW */}
-            <div className="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
-                <div className="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
-                    <button onClick={() => setView('verilog')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'verilog' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
-                        <FileCode2 size={16} /> alu_4bit.v
-                    </button>
-                    <button onClick={() => setView('schematic')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'schematic' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
-                        <GitMerge size={16} /> RTL_Schematic
-                    </button>
-                </div>
-
-                {view === 'verilog' && (
-                    <div className="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
-                        <pre><code>
-<span className="text-pink-400">module</span> <span className="text-emerald-400">alu_4bit</span> (
-    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[3:0]</span> a,
-    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[3:0]</span> b,
-    <span className="text-cyan-400">input</span>  <span className="text-slate-400">[1:0]</span> alu_sel,
-    <span className="text-cyan-400">output</span> <span className="text-pink-400">reg</span> <span className="text-slate-400">[3:0]</span> result,
-    <span className="text-cyan-400">output</span> <span className="text-pink-400">reg</span>       carry_out
-);
-    <span className="text-cyan-400">wire</span> <span className="text-slate-400">[4:0]</span> add_res;
-    <span className="text-cyan-400">assign</span> add_res = a + b;
-
-    <span className="text-pink-400">always</span> @(<span className="text-pink-400">*</span>) <span className="text-pink-400">begin</span>
-        result    = <span className="text-orange-400">4'b0000</span>;
-        carry_out = <span className="text-orange-400">1'b0</span>;
-        <span className="text-pink-400">case</span> (alu_sel)
-            <span className="text-orange-400">2'b00</span>: result = a & b;
-            <span className="text-orange-400">2'b01</span>: result = a | b;
-            <span className="text-orange-400">2'b10</span>: result = a ^ b;
-            <span className="text-orange-400">2'b11</span>: <span className="text-pink-400">begin</span>
-                result    = add_res<span className="text-slate-400">[3:0]</span>;
-                carry_out = add_res<span className="text-slate-400">[4]</span>;
-            <span className="text-pink-400">end</span>
-        <span className="text-pink-400">endcase</span>
-    <span className="text-pink-400">end</span>
-<span className="text-pink-400">endmodule</span>
-                        </code></pre>
-                    </div>
-                )}
-                {view === 'schematic' && (
-                    <div className="p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px] flex items-center justify-center">
-                        <svg width="300" height="300" viewBox="0 0 300 300" className="text-slate-400 font-mono">
-                            <line x1="80" y1="50" x2="80" y2="90" stroke="currentColor" strokeWidth="2"/>
-                            <text x="80" y="40" textAnchor="middle" fill="#cbd5e1" className="text-sm">A [3:0]</text>
-                            <line x1="220" y1="50" x2="220" y2="90" stroke="currentColor" strokeWidth="2"/>
-                            <text x="220" y="40" textAnchor="middle" fill="#cbd5e1" className="text-sm">B [3:0]</text>
-                            <polygon points="60,90 240,90 190,210 160,210 150,180 140,210 110,210" fill="#1e293b" stroke="#22d3ee" strokeWidth="3"/>
-                            <text x="150" y="140" textAnchor="middle" fill="#22d3ee" className="font-bold text-xl">ALU</text>
-                            <line x1="150" y1="210" x2="150" y2="260" stroke="currentColor" strokeWidth="2"/>
-                            <text x="150" y="275" textAnchor="middle" fill="#cbd5e1" className="text-sm">result</text>
-                        </svg>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
-const FSMLab = () => {
-    const [view, setView] = useState('schematic');
-    const [state, setState] = useState(0); // 0:IDLE, 1:RED, 2:GREEN, 3:YELLOW
-    const [counter, setCounter] = useState(0);
-
-    // FSM Logic replication
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCounter(c => {
-                let nextC = c + 1;
-                if (state === 0 && nextC > 9) { setState(1); return 0; }
-                if (state === 1 && nextC > 4) { setState(2); return 0; }
-                if (state === 2 && nextC > 4) { setState(3); return 0; }
-                if (state === 3 && nextC > 2) { setState(1); return 0; } // Loop back to RED
-                return nextC;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [state]);
-
-    const resetFSM = () => { setState(0); setCounter(0); };
-
-    // Derived states for UI
-    const isRed = state === 0 || state === 1;
-    const isGreen = state === 2;
-    const isYellow = state === 3;
-
-    return (
-        <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6 xl:gap-8 w-full min-w-0 items-stretch animate-in">
-            {/* LEFT COLUMN: INTERACTIVE UI */}
-            <div className="glass-card rounded-xl p-6 md:p-8 font-mono border-t-4 border-t-yellow-500 relative overflow-hidden flex flex-col h-full min-w-0">
-                <div className="absolute right-0 top-0 opacity-5 pointer-events-none text-7xl font-bold">FSM</div>
-                
-                <div className="flex flex-col mb-8 gap-4 border-b border-slate-700 pb-6">
-                    <div>
-                        <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                            <TrafficCone className="text-yellow-400" size={20} /> Automated Traffic
-                        </h3>
-                        <p className="text-slate-500 text-xs mt-1">Clock is generated automatically (1Hz).</p>
-                    </div>
-                    <button onClick={resetFSM} className="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-sm transition-colors font-bold self-start active:translate-y-0.5">
-                        RSTN
-                    </button>
-                </div>
-
-                <div className="flex-1 flex flex-col items-center justify-center mb-8">
-                    <div className="bg-[#0a0f18] p-8 rounded-full border border-slate-700 shadow-inner flex flex-col gap-6">
-                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isRed ? 'bg-red-500 border-red-300 shadow-[0_0_15px_#ef4444]' : 'bg-slate-900 border-slate-700'}`}></div>
-                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isYellow ? 'bg-yellow-500 border-yellow-300 shadow-[0_0_15px_#eab308]' : 'bg-slate-900 border-slate-700'}`}></div>
-                        <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${isGreen ? 'bg-green-500 border-green-300 shadow-[0_0_15px_#22c55e]' : 'bg-slate-900 border-slate-700'}`}></div>
-                    </div>
-                </div>
-
-                <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center flex justify-between px-6">
-                    <div>
-                        <span className="text-[10px] text-slate-500 block mb-1">State Reg</span>
-                        <span className={`text-lg font-bold tracking-widest ${state===0?'text-slate-400':state===1?'text-red-400':state===2?'text-green-400':'text-yellow-400'}`}>
-                            {['IDLE','RED','GREEN','YELLOW'][state]}
-                        </span>
-                    </div>
-                    <div className="border-l border-slate-700 pl-6">
-                        <span className="text-[10px] text-slate-500 block mb-1">Counter</span>
-                        <span className="text-lg font-mono text-cyan-400">{counter}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT COLUMN: ENGINEERING VIEW */}
-            <div className="bg-slate-900 rounded-xl border border-slate-700 flex flex-col min-w-0 min-h-[560px] overflow-hidden shadow-xl">
-                 <div className="flex bg-[#0f172a] border-b border-slate-700 items-end px-2 pt-2 gap-1 overflow-x-auto">
-                    <button onClick={() => setView('schematic')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'schematic' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
-                        <GitMerge size={16} /> State_Diagram
-                    </button>
-                    <button onClick={() => setView('verilog')} className={`px-4 py-2 text-sm font-mono flex items-center gap-2 rounded-t-lg transition-colors ${view === 'verilog' ? 'text-cyan-400 bg-slate-900 border-t border-x border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}>
-                        <FileCode2 size={16} /> traffic_controller.sv
-                    </button>
-                </div>
-
-                {view === 'schematic' && (
-                    <div className="p-4 md:p-6 flex-1 bg-slate-900/50 overflow-auto min-h-[500px] flex items-center">
-                        <svg width="850" height="350" viewBox="0 0 850 350" className="block w-full h-auto min-w-[760px] text-slate-400 font-mono">
-                            <defs>
-                                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" /></marker>
-                                <marker id="arrowActive" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" /></marker>
-                            </defs>
-                            
-                            {/* Simple State nodes rendering for brevity, highlighting active state */}
-                            {[
-                                {id: 0, label: 'IDLE', x: 50, color: state===0?'#22d3ee':'#0f172a', text: state===0?'#000':'#fff'},
-                                {id: 1, label: 'RED', x: 260, color: state===1?'#ef4444':'#450a0a', text: '#fff'},
-                                {id: 2, label: 'GREEN', x: 470, color: state===2?'#22c55e':'#052e16', text: '#fff'},
-                                {id: 3, label: 'YELLOW', x: 680, color: state===3?'#eab308':'#422006', text: '#fff'}
-                            ].map(s => (
-                                <g key={s.id}>
-                                    <rect x={s.x} y="100" width="140" height="85" rx="10" fill={s.color} stroke={state===s.id?'#fff':'#64748b'} strokeWidth="2"/>
-                                    <text x={s.x+70} y="145" fontWeight="bold" fill={s.text} textAnchor="middle">{s.label}</text>
-                                </g>
-                            ))}
-                            {/* Abstract transitions */}
-                            <line x1="195" y1="142" x2="250" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
-                            <line x1="405" y1="142" x2="460" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
-                            <line x1="615" y1="142" x2="670" y2="142" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
-                            <path d="M 750 185 Q 540 280 335 185" fill="none" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)"/>
-                        </svg>
-                    </div>
-                )}
-                {view === 'verilog' && (
-                    <div className="p-4 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto flex-1 bg-[#1e1e1e]">
-                        <pre><code><span className="text-slate-500 italic">// SystemVerilog FSM Snippet omitted for brevity, logic identical to previous HTML</span></code></pre>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+  return [page, navigate];
 }
 
-const LabsPage = () => {
-    const [activeLab, setActiveLab] = useState('alu');
+const navigation = [
+  { id: 'home', label: 'Index' },
+  { id: 'projects', label: 'Work' },
+  { id: 'labs', label: 'Lab' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
+];
 
-    return (
-        <div className="animate-in space-y-8 max-w-full mx-auto">
-            <div className="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Digital Lab</h2>
-                    <p className="text-slate-400 mt-3">Interactive RTL simulation. Select a module below to test.</p>
-                </div>
-                
-                <div className="bg-slate-900 p-1.5 rounded-lg border border-slate-700 flex gap-1 overflow-x-auto">
-                    <button onClick={() => setActiveLab('alu')} className={`px-4 py-2 rounded text-sm transition-colors whitespace-nowrap ${activeLab === 'alu' ? 'bg-cyan-900/50 text-cyan-400 border border-cyan-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'}`}>
-                        4-bit ALU
-                    </button>
-                    <button onClick={() => setActiveLab('fsm')} className={`px-4 py-2 rounded text-sm transition-colors whitespace-nowrap ${activeLab === 'fsm' ? 'bg-yellow-900/50 text-yellow-400 border border-yellow-800' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'}`}>
-                        Traffic Light FSM
-                    </button>
-                </div>
-            </div>
-
-            {/* Render Active Lab Module */}
-            {activeLab === 'alu' ? <ALULab /> : <FSMLab />}
-        </div>
-    );
-};
-
-const ContactPage = () => (
-    <div className="animate-in space-y-8 max-w-7xl mx-auto">
-        <div className="border-b border-slate-800 pb-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-100 font-mono">Contact</h2>
-            <p className="text-slate-400 mt-3">Open to learning opportunities, digital IC projects, verification practice, and FPGA/SoC collaborations.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <a href="mailto:pquoctrung141205@gmail.com" className="glass-card rounded-xl p-6 hover:border-cyan-500/60 transition-all hover:-translate-y-1 block">
-                <Mail className="w-10 h-10 text-cyan-400 mb-4" />
-                <h3 className="text-xl font-bold text-slate-100 mb-1">Email</h3>
-                <p className="text-slate-400 text-sm">pquoctrung141205@gmail.com</p>
-            </a>
-
-            <a href="https://github.com/trungpham141205" target="_blank" rel="noreferrer" className="glass-card rounded-xl p-6 hover:border-emerald-500/60 transition-all hover:-translate-y-1 block">
-                <Github className="w-10 h-10 text-emerald-400 mb-4" />
-                <h3 className="text-xl font-bold text-slate-100 mb-1">GitHub</h3>
-                <p className="text-slate-400 text-sm">github.com/trungpham141205</p>
-            </a>
-        </div>
-    </div>
-);
-
-const AboutPage = () => (
-    <div className="animate-in max-w-7xl mx-auto py-8">
-      {/* 12-Column Grid / High Density Dashboard Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Profile Sidebar */}
-        <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col justify-between shadow-lg">
-          <div>
-            <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-              <User size={40} className="text-slate-300" />
-            </div>
-            <h1 className="text-3xl font-mono font-bold text-slate-100 mb-2">Pham Quoc Trung</h1>
-            <h2 className="text-cyan-400 font-mono mb-6">Digital IC Design Learner</h2>
-            <p className="text-sm text-slate-400 leading-relaxed font-sans mb-6">
-              Passionate about transforming algorithms into optimal silicon structures. Strongly focused on RTL design, verification mindset, and FPGA prototyping.
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <a href="#" className="p-2 bg-slate-800 rounded hover:text-cyan-400 transition-colors"><Github size={20} /></a>
-            <a href="#" className="p-2 bg-slate-800 rounded hover:text-cyan-400 transition-colors"><Linkedin size={20} /></a>
-          </div>
-        </div>
-  
-        {/* Main Data View */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          
-          {/* Skills Matrix */}
-          <div className="glass-card rounded-xl p-6">
-            <h3 className="font-mono text-xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2">Skills Matrix</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              <div>
-                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Languages</h4>
-                <ul className="space-y-2 text-sm font-mono text-slate-300">
-                  <li>• Verilog / SystemVerilog</li>
-                  <li>• C / C++</li>
-                  <li>• Python</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Tools</h4>
-                <ul className="space-y-2 text-sm font-mono text-slate-300">
-                  <li>• Vivado</li>
-                  <li>• ModelSim / Questa</li>
-                  <li>• Quartus</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Domains</h4>
-                <ul className="space-y-2 text-sm font-mono text-slate-300">
-                  <li>• Computer Architecture</li>
-                  <li>• FSM Design</li>
-                  <li>• FPGA Prototyping</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-  
-          {/* Timeline */}
-          <div className="glass-card rounded-xl p-6 flex-1">
-            <h3 className="font-mono text-xl font-bold text-slate-100 mb-6 border-b border-slate-700 pb-2">Learning Progression</h3>
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-violet-400 rounded-full mt-1.5 shadow-[0_0_10px_#8b5cf6]"></div>
-                  <div className="w-px h-full bg-slate-700 mt-2"></div>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg text-slate-200">CPU Architecture</h4>
-                  <p className="text-sm text-violet-400 font-mono mb-2">Current Phase</p>
-                  <p className="text-sm text-slate-400">Designing a single-cycle RV32I processor. Learning instruction fetching, decoding, execution, and memory mapping.</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full mt-1.5"></div>
-                   <div className="w-px h-full bg-slate-700 mt-2"></div>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg text-slate-200">FSM & Control Logic</h4>
-                  <p className="text-sm text-yellow-400 font-mono mb-2">Previous Phase</p>
-                  <p className="text-sm text-slate-400">Mastered Moore and Mealy machines, state encoding, and next-state logic separation.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-);
-
-// ==========================================
-// MAIN APP & NAVIGATION (Sidebar Layout as per HTML)
-// ==========================================
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, navigate] = useHashRoute('home');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    setMenuOpen(false);
+  }, [currentPage]);
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <HomePage setPage={setCurrentPage} />;
-      case 'projects': return <ProjectsPage />;
-      case 'labs': return <LabsPage />;
-      case 'about': return <AboutPage />;
-      case 'contact': return <ContactPage />;
-      default: return <HomePage setPage={setCurrentPage} />;
+      case 'projects':
+        return <ProjectsPage />;
+      case 'labs':
+        return <LabsPage />;
+      case 'about':
+        return <AboutPage />;
+      case 'contact':
+        return <ContactPage />;
+      default:
+        return <HomePage navigate={navigate} />;
     }
   };
 
-  const navItems = [
-    { id: 'home', label: 'Home', icon: <Terminal size={20}/> },
-    { id: 'projects', label: 'Projects', icon: <Layers size={20}/> },
-    { id: 'labs', label: 'Lab', icon: <Cpu size={20}/> },
-    { id: 'about', label: 'About', icon: <User size={20}/> },
-    { id: 'contact', label: 'Contact', icon: <Mail size={20}/> },
-  ];
-
   return (
-    <div className="relative flex min-h-screen w-full selection:bg-cyan-500/30">
-      <GlobalStyles />
-      {/* Backgrounds */}
-      <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-400/55 via-slate-950/95 to-slate-200/65 pointer-events-none z-0"></div>
+    <div className="site-shell">
+      <CosmicScene page={currentPage} />
+      <div className="scene-vignette" aria-hidden="true" />
 
-      {/* Sidebar Desktop */}
-      <aside className="hidden sm:flex w-20 md:w-72 border-r border-slate-700/70 bg-gradient-to-b from-slate-700/85 via-slate-800/85 to-slate-950/90 backdrop-blur-md flex-col justify-between py-8 sticky top-0 h-screen shrink-0 z-20">
-        <div>
-            <div className="px-4 md:px-8 mb-12 flex items-center gap-3">
-                <Cpu className="w-8 h-8 text-cyan-400 shrink-0" />
-                <span className="font-bold text-xl hidden md:block text-slate-100">
-                    Trung<span className="text-cyan-400">.</span>IC
-                </span>
-            </div>
-            <nav className="space-y-2 px-2 md:px-4">
-                {navItems.map(item => {
-                    const isActive = currentPage === item.id;
-                    return (
-                        <button
-                            key={item.id}
-                            onClick={() => setCurrentPage(item.id)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                                isActive 
-                                ? 'bg-cyan-950/40 text-cyan-400 border border-cyan-900/50 shadow-inner' 
-                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
-                            }`}
-                        >
-                            {item.icon}
-                            <span className="font-medium hidden md:block">{item.label}</span>
-                        </button>
-                    )
-                })}
-            </nav>
-        </div>
+      <header className="site-header">
+        <button className="brand-lockup" onClick={() => navigate('home')} aria-label="Go to home">
+          <span className="brand-mark" aria-hidden="true">PT</span>
+          <span>
+            <strong>Pham Quoc Trung</strong>
+            <small>Digital IC / RTL</small>
+          </span>
+        </button>
 
-        <div className="px-4 md:px-8 space-y-4">
-            <a href="https://github.com/trungpham141205" target="_blank" rel="noreferrer"
-                className="w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2 border border-slate-700 hover:border-cyan-500/50 rounded-lg text-sm text-slate-400 hover:text-cyan-400 transition-colors">
-                <Github size={16} />
-                <span className="hidden md:block">GitHub Profile</span>
-            </a>
-        </div>
-      </aside>
-
-      {/* Mobile Nav */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-800 z-50 flex justify-around p-3 backdrop-blur">
-          {navItems.map(item => (
+        <nav className="desktop-nav" aria-label="Main navigation">
+          {navigation.map((item, index) => (
+            <React.Fragment key={item.id}>
+              {index > 0 && <span className="nav-dot" aria-hidden="true">·</span>}
               <button
-                  key={item.id}
-                  onClick={() => setCurrentPage(item.id)}
-                  className={`p-3 rounded-xl transition-colors ${currentPage === item.id ? 'text-cyan-400 bg-cyan-950/50 border border-cyan-900/50' : 'text-slate-500'}`}
+                className={currentPage === item.id ? 'is-active' : ''}
+                onClick={() => navigate(item.id)}
+                aria-current={currentPage === item.id ? 'page' : undefined}
               >
-                  {item.icon}
+                {item.label}
               </button>
+            </React.Fragment>
           ))}
+        </nav>
+
+        <button
+          className="mobile-menu-button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+        >
+          {menuOpen ? <X size={16} /> : <Menu size={16} />}
+        </button>
+      </header>
+
+      <nav
+        id="mobile-navigation"
+        className={`mobile-nav ${menuOpen ? 'is-open' : ''}`}
+        aria-label="Mobile navigation"
+      >
+        {navigation.map((item) => (
+          <button
+            key={item.id}
+            className={currentPage === item.id ? 'is-active' : ''}
+            onClick={() => navigate(item.id)}
+            aria-current={currentPage === item.id ? 'page' : undefined}
+          >
+            <span>{item.label}</span>
+            <span aria-hidden="true">{currentPage === item.id ? '●' : '○'}</span>
+          </button>
+        ))}
       </nav>
 
-      {/* Main Content Area */}
-      <main className="flex-1 min-w-0 w-full p-4 md:p-8 xl:p-10 pb-24 overflow-y-auto relative z-10">
+      <main className={`page-stage page-${currentPage}`} key={currentPage}>
         {renderPage()}
       </main>
+
+      <footer className="site-footer">
+        <span>© {new Date().getFullYear()} Pham Quoc Trung</span>
+        <span>RTL · FPGA · RISC-V</span>
+      </footer>
     </div>
   );
 }
