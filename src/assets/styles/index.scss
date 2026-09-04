@@ -13,6 +13,7 @@ html {
   font-family: "Urbanist";
   letter-spacing: 0.015em;
   overflow-y: scroll !important;
+  scrollbar-gutter: stable;
 
   --vh: 1vh;
   --dvh: 1vh;
@@ -35,6 +36,13 @@ html {
 
 body {
   background: #000;
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 .svg-definitions {

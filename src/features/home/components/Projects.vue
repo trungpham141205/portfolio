@@ -4,8 +4,6 @@ import { previews } from "../../../content/projects/previews";
 import { locale } from "../../../i18n/store";
 import PreviewCard from "../../projects/components/PreviewCard.vue";
 import NotchSection from "../../../components/NotchSection.vue";
-import Banner from "../../../components/Banner.vue";
-import { t } from "../../../i18n/utils/translate";
 import SectionAtmosphere from "../../../components/SectionAtmosphere.vue";
 
 import type { ProjectPreview } from "../../../content/types";
@@ -35,12 +33,19 @@ onMounted(loadPreviews);
     <SectionAtmosphere variant="work" />
     <NotchSection class="projects-notch-start" />
     <NotchSection class="projects-notch-end" />
-    <div class="grid">
-      <div class="projects-title">
-        <Banner class="projects-title-banner" :copy="t('selected')" size="sm" animated />
-        <h2 class="projects-title-copy">{{ t("projects") }}</h2>
+    <header class="projects-title grid">
+      <div class="projects-title-main">
+        <p>03 / SELECTED WORK</p>
+        <h2>Evidence,<br /><span>not decoration.</span></h2>
       </div>
-    </div>
+      <div class="projects-title-note">
+        <p>
+          Six case studies move from processor architecture and SoC integration to control logic, registers, and
+          arithmetic paths.
+        </p>
+        <div><span>{{ String(loadedPreviews?.length ?? 0).padStart(2, "0") }} CASE STUDIES</span><span>RTL / SOC / FPGA</span></div>
+      </div>
+    </header>
     <div class="grid">
       <div class="projects-cards">
         <PreviewCard v-for="preview in loadedPreviews" :key="preview.title" :preview="preview" />
@@ -57,20 +62,20 @@ onMounted(loadPreviews);
   justify-content: center;
   position: relative;
   width: 100%;
-  gap: var(--space-xxl);
+  gap: clamp(54px, 8vw, 110px);
   padding-left: var(--space-outer);
   padding-right: var(--space-outer);
   background-color: rgba(0, 0, 0, 0.62);
   backdrop-filter: blur(2px);
   border-top: 1px solid var(--color-grayscale-500);
   min-height: calc(var(--lvh) * 100 + var(--radius-xxl));
-  padding-top: 96px;
-  padding-bottom: 96px;
+  padding-top: 120px;
+  padding-bottom: 120px;
 
   @include mixins.mq("md") {
     padding-top: 144px;
     padding-bottom: 144px;
-    gap: var(--space-xxl);
+    gap: clamp(72px, 9vw, 130px);
   }
 
   @include mixins.mq("lg") {
@@ -78,42 +83,72 @@ onMounted(loadPreviews);
   }
 
   &-title {
+    width: 100%;
     z-index: 1;
     position: relative;
-    padding-top: var(--space-md);
-    grid-column: 1 / 13;
+    align-items: end;
+    row-gap: 30px;
 
-    @include mixins.mq("md") {
-      grid-column: 1 / 10;
-    }
+    &-main {
+      grid-column: 1 / 13;
 
-    @include mixins.mq("lg") {
-      grid-column: 3 / 8;
-    }
-
-    &-copy {
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      font-size: var(--font-size-title-md);
-
-      @include mixins.mq("sm") {
-        font-size: var(--font-size-title-lg);
+      @include mixins.mq("md") {
+        grid-column: 1 / 8;
       }
-
-      @include mixins.mq("xl") {
-        font-size: var(--font-size-title-xl);
-      }
-    }
-
-    &-banner {
-      position: absolute;
-      top: 0;
-      left: -8px;
-      transform: translate(0, -20%) rotate(-4deg);
 
       @include mixins.mq("lg") {
-        left: -16px;
-        transform: translate(0, -20%) rotate(-6deg);
+        grid-column: 2 / 8;
+      }
+
+      > p {
+        margin-bottom: 14px;
+        color: #8d93cb;
+        font: 700 9px/1.4 "Urbanist", sans-serif;
+        letter-spacing: 0.18em;
+      }
+
+      h2 {
+        font-size: clamp(50px, 8vw, 124px);
+        line-height: 0.82;
+        letter-spacing: -0.055em;
+        text-transform: uppercase;
+
+        span {
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(255, 255, 255, 0.46);
+        }
+      }
+    }
+
+    &-note {
+      grid-column: 1 / 13;
+      max-width: 540px;
+      padding-top: 16px;
+      border-top: 1px solid #4d4d4d;
+      display: grid;
+      gap: 18px;
+
+      @include mixins.mq("md") {
+        grid-column: 9 / 13;
+      }
+
+      @include mixins.mq("lg") {
+        grid-column: 9 / 12;
+      }
+
+      > p {
+        color: #c6c6c6;
+        font-size: clamp(15px, 1.4vw, 19px);
+        line-height: 1.48;
+      }
+
+      > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: #686868;
+        font: 700 8px/1 "ProFontWindows", monospace;
+        letter-spacing: 0.1em;
       }
     }
   }
@@ -141,21 +176,16 @@ onMounted(loadPreviews);
     max-width: 100%;
     flex: 1;
     grid-column: 1 / span 12;
-    display: grid;
-    gap: var(--space-lg);
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 3vw, 36px);
 
     @include mixins.mq("md") {
       grid-column: 1 / span 12;
     }
 
     @include mixins.mq("lg") {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-column: 3 / span 8;
-    }
-
-    @include mixins.mq("xl") {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-column: 2 / span 10;
     }
   }
 }

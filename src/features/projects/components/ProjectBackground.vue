@@ -67,4 +67,11 @@ import { projectId, recentProjectId } from "../../../composables/useRouteObserve
     visibility: visible;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .project-background,
+  .project-background-blend {
+    transition: none;
+  }
+}
 </style>

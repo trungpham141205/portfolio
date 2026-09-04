@@ -9,132 +9,203 @@ const scrollTo = (target: string) => {
 </script>
 
 <template>
-  <div class="hero">
-    <div class="hero-content grid">
-      <div class="hero-content-inner" id="hero-content-inner">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-frame" aria-hidden="true">
+      <span>CLK / 100 MHZ</span>
+      <span>MODE / LEARN + BUILD</span>
+      <span>LOC / HO CHI MINH CITY</span>
+      <span>PORTFOLIO / 2026</span>
+    </div>
+
+    <div class="hero-grid grid">
+      <div class="hero-identity" id="hero-content-inner">
         <div class="hero-kicker">
-          <span>PORTFOLIO / 2026</span>
-          <span class="hero-kicker-status"><i></i> OPEN TO LEARN &amp; BUILD</span>
+          <span><i></i> SIGNAL LOCKED</span>
+          <span>DIGITAL IC / RTL</span>
         </div>
-        <div class="hero-content-copys">
-          <h1 class="hero-title">Pham Quoc<br />Trung</h1>
-          <div class="hero-role" v-if="!preloaderVisible">
-            <span>RTL</span>
-            <span>{{ t("job-title") || "Digital IC Design Learner" }}</span>
-          </div>
+        <h1 id="hero-title" class="hero-title">
+          <span>Pham Quoc</span>
+          <span>Trung</span>
+        </h1>
+        <div class="hero-role" v-if="!preloaderVisible">
+          <span>RTL</span>
+          <span>{{ t("job-title") || "Digital IC Design Learner" }}</span>
         </div>
-        <p class="hero-note">Verilog / SystemVerilog / RISC-V / FPGA</p>
+      </div>
+
+      <aside class="hero-thesis">
+        <span class="hero-thesis-index">00 / IDENTITY</span>
+        <p>I translate specifications into deterministic hardware behavior.</p>
+        <div class="hero-thesis-stack">
+          <span>VERILOG</span><span>SYSTEMVERILOG</span><span>RISC-V</span><span>FPGA</span>
+        </div>
         <div class="hero-actions" v-if="!preloaderVisible">
           <button class="hero-action hero-action-primary" type="button" @click="scrollTo('#projects')">
-            Explore work
+            Inspect work
           </button>
-          <button class="hero-action hero-action-ghost" type="button" @click="scrollTo('#lab')">Open lab</button>
+          <button class="hero-action hero-action-ghost" type="button" @click="scrollTo('#pipeline')">
+            See process
+          </button>
         </div>
-      </div>
+      </aside>
     </div>
-    <aside class="hero-protocol" aria-label="Immersive portfolio interface status">
-      <div class="hero-protocol-copy">
-        <span>INTERFACE / 001</span>
-        <p>Cosmic signal path online. Scroll to move from architecture into live logic.</p>
-      </div>
-      <div class="hero-protocol-status">
-        <span><i></i> PORTAL / LIVE</span>
-        <span>VOID / 000</span>
-      </div>
-    </aside>
-  </div>
+
+    <div class="hero-clock" aria-hidden="true">
+      <div><span>0</span><span>20 ns</span><span>40 ns</span><span>60 ns</span><span>80 ns</span></div>
+      <svg viewBox="0 0 1200 80" preserveAspectRatio="none">
+        <polyline points="0,60 90,60 90,16 220,16 220,60 350,60 350,16 480,16 480,60 610,60 610,16 740,16 740,60 870,60 870,16 1000,16 1000,60 1200,60" />
+      </svg>
+      <p>posedge clk</p>
+    </div>
+  </section>
 </template>
 
 <style scoped lang="scss">
 .hero {
-  max-height: calc(var(--lvh) * 100);
-  height: calc(var(--lvh) * 100);
-  width: 100%;
-  display: flex;
   position: relative;
+  width: 100%;
+  height: calc(var(--lvh) * 100);
+  min-height: calc(var(--lvh) * 100);
+  max-height: none;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 
-  &-content {
-    align-items: center;
-    justify-content: center;
-    height: 58%;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 12% 5% 19%;
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    border-radius: 50%;
+    transform: rotate(-8deg);
+    pointer-events: none;
+  }
 
-    @include mixins.landscape {
-      height: 100%;
+  &-grid {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    align-items: end;
+    padding: 0 var(--space-outer) 8vh;
+  }
 
-      @include mixins.mq("md") {
-        padding-bottom: 25%;
-      }
+  &-identity {
+    grid-column: 1 / 13;
+    transform-origin: left center;
 
-      @include mixins.mq("lg") {
-        padding-bottom: 2%;
-      }
+    @include mixins.mq("md") {
+      grid-column: 1 / 9;
     }
 
-    &-inner {
-      transform-origin: center center;
-      grid-column: 1 / 13;
-      gap: var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: fit-content;
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
-
-      @include mixins.landscape {
-        left: 0;
-        transform: translateX(0);
-        grid-column: 2 / 13;
-        width: fit-content;
-      }
-    }
-
-    &-copys {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-
-      @include mixins.mq("md") {
-        gap: var(--space-md);
-      }
-    }
-
-    &-button {
-      width: fit-content;
+    @include mixins.mq("lg") {
+      grid-column: 2 / 9;
     }
   }
 
   &-title {
     font-weight: 900;
-    letter-spacing: -0.045em;
-    line-height: 0.83;
+    letter-spacing: -0.065em;
+    line-height: 0.76;
     text-transform: uppercase;
-    font-size: var(--font-size-title-lg);
+    font-size: clamp(66px, 10.5vw, 170px);
 
-    @include mixins.landscape {
-      font-size: var(--font-size-title-lg);
-    }
+    span {
+      display: block;
 
-    @include mixins.landscape-large {
-      @include mixins.mq("sm") {
-        font-size: var(--font-size-title-xl);
-      }
-
-      @include mixins.mq("xl") {
-        font-size: var(--font-size-title-xxl);
+      &:last-child {
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.72);
+        transform: translateX(clamp(22px, 8vw, 130px));
       }
     }
   }
 
-  &-kicker,
-  &-note {
-    color: var(--color-gray-400);
-    font: 700 10px/1.5 "Urbanist", sans-serif;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+  &-kicker {
+    width: min(100%, 760px);
+    margin-bottom: clamp(18px, 3vh, 34px);
+    padding-bottom: 10px;
+    border-bottom: 1px solid #353535;
+    display: flex;
+    justify-content: space-between;
+    color: #898989;
+    font: 700 9px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.17em;
+
+    span:first-child {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #aeb3e5;
+      box-shadow: 0 0 18px rgba(174, 179, 229, 0.65);
+    }
+  }
+
+  &-role {
+    width: fit-content;
+    margin-top: clamp(18px, 3.4vh, 38px);
+    margin-left: clamp(22px, 8vw, 130px);
+    padding: 7px 13px;
+    border: 1px solid #4d4d4d;
+    border-radius: 500px;
+    background: rgba(0, 0, 0, 0.56);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+
+    > span:first-child {
+      color: #aeb3e5;
+      font-family: "ProFontWindows", monospace;
+    }
+  }
+
+  &-thesis {
+    grid-column: 1 / 13;
+    margin-top: clamp(34px, 7vh, 72px);
+    padding: 16px 0 0;
+    border-top: 1px solid #4d4d4d;
+    display: grid;
+    gap: 16px;
+
+    @include mixins.mq("md") {
+      grid-column: 9 / 13;
+      margin-top: 0;
+      padding-left: 20px;
+      border-top: 0;
+      border-left: 1px solid #4d4d4d;
+    }
+
+    &-index {
+      color: #8d93cb;
+      font: 700 9px/1 "Urbanist", sans-serif;
+      letter-spacing: 0.17em;
+    }
+
+    > p {
+      max-width: 400px;
+      color: #fff;
+      font-size: clamp(18px, 2vw, 27px);
+      line-height: 1.28;
+    }
+
+    &-stack {
+      padding-top: 10px;
+      border-top: 1px solid #2e2e2e;
+      color: #777;
+      font: 700 8px/1.6 "Urbanist", sans-serif;
+      letter-spacing: 0.13em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+    }
   }
 
   &-actions {
@@ -144,12 +215,12 @@ const scrollTo = (target: string) => {
   }
 
   &-action {
-    min-height: 38px;
-    padding: 0 18px;
+    min-height: 44px;
+    padding: 0 20px;
     border-radius: 500px;
     color: #fff;
-    font: 700 11px/1 "Urbanist", sans-serif;
-    letter-spacing: 0.04em;
+    font: 700 10px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     transition:
       background-color 0.25s ease,
@@ -158,12 +229,12 @@ const scrollTo = (target: string) => {
       transform 0.25s ease;
 
     &-primary {
-      border: 1px solid #343755;
+      border: 1px solid #4d527e;
       background: #343755;
     }
 
     &-ghost {
-      border: 1px solid rgba(255, 255, 255, 0.46);
+      border: 1px solid rgba(255, 255, 255, 0.38);
       background: rgba(0, 0, 0, 0.44);
       backdrop-filter: blur(4px);
     }
@@ -178,130 +249,172 @@ const scrollTo = (target: string) => {
     }
   }
 
-  &-kicker {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-md);
+  &-frame {
+    position: absolute;
+    z-index: 2;
+    inset: var(--space-outer);
+    pointer-events: none;
 
-    &-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    span {
+      position: absolute;
+      color: #575757;
+      font: 700 8px/1 "ProFontWindows", monospace;
+      letter-spacing: 0.12em;
 
-      i {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #c6c6c6;
-      }
+      &:nth-child(1) { left: 0; top: 76px; }
+      &:nth-child(2) { right: 0; top: 76px; }
+      &:nth-child(3) { left: 0; bottom: 122px; }
+      &:nth-child(4) { right: 0; bottom: 122px; }
     }
   }
 
-  &-role {
-    align-self: flex-end;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 13px;
-    border: 1px solid var(--color-ash-border, #4d4d4d);
-    border-radius: 500px;
-    background: rgba(0, 0, 0, 0.52);
-    color: #fff;
-    font-size: var(--font-size-sm);
-    font-weight: 700;
-
-    > span:first-child {
-      color: #c6c6c6;
-      font-family: "ProFontWindows", monospace;
-    }
-  }
-
-  &-protocol {
+  &-clock {
     position: absolute;
     z-index: 2;
     left: var(--space-outer);
-    bottom: var(--space-outer);
-    width: min(360px, calc(100% - var(--space-outer) * 2));
-    padding: 16px 18px;
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: grid;
-    gap: 14px;
+    right: var(--space-outer);
+    bottom: 24px;
+    height: 76px;
+    border-top: 1px solid #313131;
 
-    &-copy {
-      display: grid;
-      gap: 6px;
-
-      > span {
-        color: #999;
-        font: 700 9px/1.4 "Urbanist", sans-serif;
-        letter-spacing: 0.16em;
-      }
-
-      p {
-        color: #fff;
-        font-size: 15px;
-        line-height: 1.55;
-      }
-    }
-
-    &-status {
+    > div {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      padding-top: 10px;
-      border-top: 1px solid #4d4d4d;
-      color: #808080;
-      font: 700 8px/1 "Urbanist", sans-serif;
-      letter-spacing: 0.12em;
+      padding-top: 7px;
+      color: #515151;
+      font: 700 7px/1 "ProFontWindows", monospace;
+    }
 
-      span {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
+    svg {
+      position: absolute;
+      inset: 16px 0 0;
+      width: 100%;
+      height: 56px;
+      overflow: visible;
+    }
 
-      i {
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #c6c6c6;
-      }
+    polyline {
+      fill: none;
+      stroke: rgba(141, 147, 203, 0.62);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      stroke-dasharray: 12 8;
+      animation: hero-clock-flow 12s linear infinite;
+    }
+
+    p {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      color: #75799f;
+      font: 700 8px/1 "ProFontWindows", monospace;
+      text-transform: uppercase;
     }
   }
 }
 
-@media (max-width: 839px) {
-  .hero-protocol {
-    bottom: 76px;
-    padding: 12px 14px;
+@keyframes hero-clock-flow {
+  to { stroke-dashoffset: -200; }
+}
 
-    &-copy p {
-      font-size: 13px;
-      line-height: 1.4;
+@media (max-width: 839px) {
+  .hero {
+    align-items: flex-start;
+    padding-top: 120px;
+
+    &-grid {
+      padding-bottom: 104px;
+    }
+
+    &-title {
+      font-size: clamp(64px, 18vw, 104px);
+    }
+
+    &-thesis {
+      max-width: 560px;
+    }
+
+    &-frame span:nth-child(2),
+    &-frame span:nth-child(3) {
+      display: none;
+    }
+
+    &-clock {
+      bottom: 46px;
     }
   }
 }
 
 @media (max-width: 479px) {
-  .hero-protocol-status {
-    display: none;
+  .hero {
+    padding-top: 105px;
+
+    &-kicker span:last-child,
+    &-thesis-stack,
+    &-frame span {
+      display: none;
+    }
+
+    &-title {
+      font-size: clamp(58px, 18.5vw, 82px);
+    }
+
+    &-thesis > p {
+      font-size: 18px;
+    }
+
+    &-clock {
+      bottom: 52px;
+    }
   }
 }
 
-@media (max-height: 690px) {
-  .hero-protocol {
-    display: none;
+@media (max-height: 700px) {
+  .hero {
+    padding-top: 82px;
+
+    &-grid {
+      padding-bottom: 88px;
+    }
+
+    &-kicker {
+      margin-bottom: 14px;
+    }
+
+    &-title {
+      font-size: clamp(54px, 14vh, 94px);
+    }
+
+    &-role {
+      margin-top: 14px;
+    }
+
+    &-thesis {
+      margin-top: 20px;
+      gap: 10px;
+
+      &-stack {
+        display: none;
+      }
+    }
+
+    &-action {
+      min-height: 38px;
+    }
+
+    &-clock {
+      height: 58px;
+    }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-action {
     transition: none;
+  }
+
+  .hero-clock polyline {
+    animation: none;
   }
 }
 </style>

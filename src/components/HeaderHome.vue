@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeaderLink from "./HeaderLink.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { t } from "../i18n/utils/translate";
 import { lenis } from "../composables/useScroll";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,11 +12,19 @@ const handleLinkClick = (link: string) => {
   lenis.value.scrollTo(link);
 };
 
-type ActiveLink = "about" | "projects" | "lab" | "contact";
+type ActiveLink = "about" | "pipeline" | "projects" | "lab" | "contact";
 const activeLink = ref<ActiveLink | null>(null);
-const sections: ActiveLink[] = ["about", "projects", "lab", "contact"];
+const sections: ActiveLink[] = ["about", "pipeline", "projects", "lab", "contact"];
+const labels: Record<ActiveLink, string> = {
+  about: t("about"),
+  pipeline: "Process",
+  projects: t("projects"),
+  lab: t("lab"),
+  contact: t("contact"),
+};
 const ariaLabels = {
   about: t("about"),
+  pipeline: "Engineering process",
   projects: t("projects"),
   lab: t("lab"),
   contact: t("contact"),
@@ -26,6 +34,7 @@ const isMounted = ref(false);
 
 const barStyle = ref({ transform: "" });
 const ITEM_WIDTH = 104;
+const sectionTriggers: ScrollTrigger[] = [];
 
 const { isDarkTheme, hasScrolledIntoView } = useHeaderTheme();
 
@@ -39,7 +48,7 @@ const updateBarPosition = () => {
 
 onMounted(() => {
   sections.forEach((section) => {
-    ScrollTrigger.create({
+    sectionTriggers.push(ScrollTrigger.create({
       trigger: `#${section}`,
       start: section === "about" ? "top 22.5%" : "top center",
       end: "bottom center",
@@ -53,12 +62,17 @@ onMounted(() => {
       },
       onLeave: () => (activeLink.value = null),
       onLeaveBack: () => (activeLink.value = null),
-    });
+    }));
   });
 
   ScrollTrigger.refresh();
 
   isMounted.value = true;
+});
+
+onUnmounted(() => {
+  sectionTriggers.forEach((trigger) => trigger.kill());
+  sectionTriggers.length = 0;
 });
 </script>
 
@@ -87,7 +101,7 @@ onMounted(() => {
         data-sound="click"
         data-hoversound="hover"
       >
-        {{ t(section) }}
+        {{ labels[section] }}
       </HeaderLink>
     </div>
   </div>

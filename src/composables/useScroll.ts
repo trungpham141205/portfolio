@@ -30,8 +30,10 @@ export const useScroll = () => {
       lenis.value.off("scroll", handleScroll);
     }
 
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     lenis.value = new Lenis({
-      lerp: 0.08,
+      lerp: prefersReducedMotion ? 1 : 0.08,
+      smoothWheel: !prefersReducedMotion,
     });
 
     lenis.value.on("scroll", handleScroll);
