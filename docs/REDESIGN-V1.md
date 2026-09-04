@@ -25,7 +25,7 @@ direction.
 | Orientation | Understands how he approaches hardware | Curiosity | Holographic architecture annotations and staged disclosure |
 | Translation | Sees an idea become implementation evidence | Awe — **engineered peak** | A pinned, scroll-scrubbed RTL pipeline changes state |
 | Substance | Inspects the actual work | Confidence | Alternating case-study lanes with architecture diagrams |
-| Agency | Manipulates real behavioral models | Playful control | Live ALU and traffic-FSM workbench |
+| Agency | Manipulates real behavioral models | Playful control | Verification bench with live ALU vectors, flags, waveform traces, and clock-stepped traffic FSM |
 | Commitment | Knows how to continue | Clarity | The motion resolves into one stable contact/uplink state |
 
 ## Page grammar
@@ -67,3 +67,4 @@ same project-card rhythm.
 - Keep real text in the DOM and diagrams code-native.
 - Keep the existing black, white, gray, and dusk-violet roles.
 - Use transform and opacity for motion and provide `prefers-reduced-motion` fallbacks.
+- Keep a protected center stage around every 3D subject; editorial text must resolve before it can obscure the model.

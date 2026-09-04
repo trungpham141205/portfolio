@@ -22,7 +22,7 @@ onUnmounted(() => {
     <SectionAtmosphere variant="contact" />
     <div class="contact-content">
       <p class="contact-kicker">05 / CONTACT UPLINK</p>
-      <h2 id="contact-title" class="contact-title">Close the loop.<br /><span>Start the next block.</span></h2>
+      <h2 id="contact-title" class="contact-title">Close the<br />loop.<span>Start the next block.</span></h2>
       <p class="contact-copy">
         Interested in RTL, FPGA, processor architecture, cryptographic accelerators and the systems that connect
         them. Open to mentorship, collaboration and engineering conversations.
@@ -73,29 +73,37 @@ onUnmounted(() => {
     gap: var(--space-md);
 
     @include mixins.mq("sm") {
-      grid-column: 1 / 9;
+      grid-column: 1 / 7;
     }
 
     @include mixins.mq("md") {
-      gap: var(--space-xl);
-      grid-column: 1 / 8;
+      gap: var(--space-lg);
+      grid-column: 1 / 6;
     }
 
     @include mixins.mq("lg") {
-      grid-column: 2 / 8;
+      grid-column: 2 / 6;
     }
   }
 
   &-title {
     font-weight: 900;
     letter-spacing: -0.055em;
-    line-height: 0.86;
-    font-size: clamp(48px, 7.6vw, 116px);
+    max-width: 7ch;
+    line-height: 0.82;
+    font-size: clamp(48px, 5.2vw, 82px);
     text-transform: uppercase;
 
     span {
+      display: block;
+      width: max-content;
+      max-width: 11ch;
+      margin-top: 0.18em;
       color: transparent;
       -webkit-text-stroke: 1px rgba(255, 255, 255, 0.46);
+      font-size: 0.55em;
+      line-height: 0.96;
+      letter-spacing: -0.035em;
     }
   }
 
@@ -106,14 +114,14 @@ onUnmounted(() => {
   }
 
   &-copy {
-    max-width: 520px;
+    max-width: 430px;
     color: var(--color-gray-400);
     font-size: clamp(15px, 1.5vw, 20px);
     line-height: 1.45;
   }
 
   &-email {
-    width: min(100%, 640px);
+    width: min(100%, 470px);
     min-height: 58px;
     padding: 9px 14px;
     border: 1px solid #4d4d4d;

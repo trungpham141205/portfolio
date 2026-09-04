@@ -117,11 +117,6 @@ const setupInAnimation = (about: HTMLElement) => {
         0,
       );
 
-      tl.to(
-        "#hero-content-inner",
-        { x: "27vw", rotate: 4, y: isMobile ? "-5vh" : "10vh", duration: 1, ease: "none" },
-        0,
-      );
     } else {
       //lab
       tl.fromTo(lab.group.position, { x: 0, y: 0, z: 6 }, { x: 0, y: 0, z: 6, duration: 1, ease: "none" }, 0);
@@ -134,6 +129,19 @@ const setupInAnimation = (about: HTMLElement) => {
         0,
       );
     }
+
+    tl.to(
+      ["#hero-content-inner", ".hero-thesis", ".hero-frame", ".hero-clock"],
+      {
+        x: isMobile ? "-3vw" : "-7vw",
+        y: isMobile ? "-2vh" : "0vh",
+        opacity: 0,
+        duration: 0.68,
+        ease: "power1.in",
+        stagger: 0.025,
+      },
+      0,
+    );
   });
 };
 

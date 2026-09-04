@@ -29,12 +29,14 @@ The following redesign checks are therefore implementation review (Level B), not
 | Keyboard/focus | Pass, runtime pending | Semantic buttons/links, visible focus, skip link, DOM reading order preserved |
 | WebGL fallback | Pass, runtime pending | Capability check prevents renderer initialization and leaves CSS atmosphere active |
 | Project routing | Pass | Base remains `/portfolio/`; generated 404 fallback is preserved |
+| 3D composition safety | Pass, runtime pending | Hero is constrained to the left six columns; outgoing Hero UI fades before About locks; Contact reserves the center columns for the avatar |
+| Lab interaction | Pass, runtime pending | Native controls expose ALU vectors, C/Z flags, FSM run/pause/step/reset, live state, and source views |
 
 ## Functional contract review
 
 - All six project content modules and repository links are unchanged.
-- ALU input, AND/OR/XOR/ADD, five-bit output, and source view code are unchanged.
-- Traffic FSM state sequence, timer, pause, reset, and source view code are unchanged.
+- ALU input and AND/OR/XOR/ADD semantics are unchanged; the bench now exposes reusable vectors, nibble output, and carry/zero flags.
+- Traffic FSM state sequence, timer, pause, reset, and source view code are unchanged; manual clock stepping and next-state visibility are additive.
 - Email, GitHub, David Heckhoff attribution, HM Surf attribution, and third-party license are preserved.
 
 ## Defects fixed during verification
@@ -45,6 +47,9 @@ The following redesign checks are therefore implementation review (Level B), not
 - Added a graceful CSS fallback when WebGL is unavailable.
 - Disabled smooth scrolling and pin-heavy storytelling under reduced motion.
 - Updated vulnerable transitive versions of `nanoid` and `fflate`.
+- Removed the desktop Hero-to-About translation that pushed the identity lockup over the 3D room.
+- Rebalanced Hero, About, and Contact typography around dedicated 3D negative space.
+- Upgraded Lab into a denser verification bench with live expressions, waveform-style traces, clock stepping, and state progress.
 
 ## Still requiring a public preview
 
