@@ -130,12 +130,12 @@ endmodule`;
     <div class="labs-shell grid">
       <header class="labs-header">
         <div>
-          <p class="labs-eyebrow">03 / DIGITAL LAB</p>
-          <h2>Touch the logic.<br />Watch it respond.</h2>
+          <p class="labs-eyebrow">04 / LIVE LOGIC</p>
+          <h2>Drive the inputs.<br /><span>Observe the state.</span></h2>
         </div>
         <p class="labs-intro">
-          Two browser simulations preserve the original HDL behavior while exposing signal state, timing and source
-          side by side.
+          This chapter behaves like a verification bench: control real inputs, observe outputs and state, then inspect
+          the equivalent HDL source without leaving the signal path.
         </p>
       </header>
 
@@ -267,6 +267,17 @@ endmodule`;
   border-bottom: 1px solid var(--color-grayscale-500);
   color: #ffffff;
 
+  &::after {
+    content: "";
+    position: absolute;
+    left: var(--space-outer);
+    right: var(--space-outer);
+    top: 76px;
+    height: 1px;
+    background: linear-gradient(to right, #8d93cb 0 18%, #353535 18% 100%);
+    pointer-events: none;
+  }
+
   @include mixins.mq("md") {
     padding-top: 160px;
     padding-bottom: 160px;
@@ -297,6 +308,11 @@ endmodule`;
       line-height: 0.92;
       letter-spacing: -0.045em;
       text-transform: uppercase;
+
+      span {
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.48);
+      }
     }
   }
 
@@ -480,7 +496,10 @@ endmodule`;
       height: 22px;
       border-radius: 3px;
       background: #454545;
-      transition: all 0.2s ease;
+      transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     &.on {

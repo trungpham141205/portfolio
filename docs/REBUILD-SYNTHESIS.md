@@ -56,3 +56,16 @@ The resulting content order is:
 - ALU operations remain AND, OR, XOR and ADD with two 4-bit operands and 5-bit output.
 - Traffic FSM remains IDLE 10 ticks → RED 5 → GREEN 5 → YELLOW 3 → RED.
 - The Verilog and SystemVerilog examples remain available in the Lab source view.
+
+## Redesign V1 extension
+
+The redesign keeps the existing Vue/TypeScript, Three.js, GSAP, and Lenis architecture while changing the experience
+from a conventional hero-plus-grid into six authored chapters. The WebGL scene remains atmospheric and optional;
+semantic HTML, CSS-built signal graphics, project diagrams, and the two logic labs carry the essential meaning.
+
+The visual system remains a black void with white engineering typography, ash hairlines, translucent surfaces, and a
+single dusk-violet action color. The new unifying device is a signal rail that reports the active chapter, while each
+chapter has its own behavior: identity trace, holographic annotations, scrubbed RTL pipeline, alternating work lanes,
+interactive lab console, and contact uplink.
+
+No project claims, repositories, simulation behaviors, attribution, or hosting paths are changed by this iteration.

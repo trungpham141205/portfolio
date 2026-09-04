@@ -14,12 +14,14 @@ const contentProgressCountRef = ref<HTMLDivElement | null>(null);
 const tlDescriptionRef = ref<gsap.core.Timeline | null>(null);
 const tlServicesRef = ref<gsap.core.Timeline | null>(null);
 const tlDetailsRef = ref<gsap.core.Timeline | null>(null);
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const props = defineProps<{
   spacerRef: HTMLElement | null;
 }>();
 
 watchEffect((onInvalidate) => {
+  if (prefersReducedMotion) return;
   if (
     props.spacerRef &&
     tlDescriptionRef.value &&
@@ -51,6 +53,18 @@ watchEffect((onInvalidate) => {
 <template>
   <div class="about-content">
     <SectionAtmosphere variant="about" />
+    <header class="about-manifest">
+      <p>01 / ARCHITECTURE</p>
+      <h2>Think in boundaries.<br /><span>Then write the logic.</span></h2>
+      <div>
+        <span>SPEC</span><i></i><span>BLOCKS</span><i></i><span>INTERFACES</span><i></i><span>CLOCKS</span>
+      </div>
+    </header>
+    <div class="about-static">
+      <article><span>NOW</span><strong>CPU Architecture</strong><p>Datapaths, control paths, and instruction behavior.</p></article>
+      <article><span>NEXT</span><strong>SoC Integration</strong><p>Buses, accelerators, cryptography, and system boundaries.</p></article>
+      <article><span>TOOLS</span><strong>RTL Practice</strong><p>Verilog, SystemVerilog, Vivado, Questa, synthesis, and STA.</p></article>
+    </div>
     <div ref="contentDetailsRef" class="about-details">
       <BoxDetails @timeline:created="(tl: gsap.core.Timeline) => (tlDetailsRef = tl)" />
     </div>
@@ -103,6 +117,54 @@ watchEffect((onInvalidate) => {
     }
   }
 
+  &-manifest {
+    position: absolute;
+    z-index: 2;
+    top: calc(var(--height-header) + 28px);
+    left: var(--space-outer);
+    max-width: min(580px, calc(100% - var(--space-outer) * 2));
+    display: grid;
+    gap: 12px;
+    pointer-events: none;
+
+    @include mixins.mq("lg") {
+      left: calc((100% - min(100%, var(--breakpoint-xxxl))) / 2 + var(--space-outer) + 8.333%);
+    }
+
+    > p {
+      color: #8d93cb;
+      font: 700 9px/1.5 "Urbanist", sans-serif;
+      letter-spacing: 0.18em;
+    }
+
+    h2 {
+      font-family: "Urbanist", sans-serif;
+      font-size: clamp(30px, 4.2vw, 62px);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      text-transform: uppercase;
+
+      span {
+        color: #707070;
+      }
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #686868;
+      font: 700 8px/1 "ProFontWindows", monospace;
+      letter-spacing: 0.11em;
+
+      i {
+        width: 18px;
+        height: 1px;
+        background: #414141;
+      }
+    }
+  }
+
   &-progress-count {
     z-index: 1;
     will-change: transform, opacity;
@@ -110,6 +172,78 @@ watchEffect((onInvalidate) => {
     bottom: 0;
     left: var(--space-outer);
     width: calc(100% - var(--space-outer) * 2);
+  }
+
+  &-static {
+    display: none;
+  }
+}
+
+@media (max-width: 839px) {
+  .about-manifest {
+    top: 88px;
+
+    > div {
+      display: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 42px;
+  }
+
+  .about-manifest {
+    position: relative;
+    top: auto;
+    left: auto;
+  }
+
+  .about-details,
+  .about-description,
+  .about-services,
+  .about-progress-count {
+    display: none;
+  }
+
+  .about-static {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+
+    article {
+      padding: 18px;
+      border: 1px solid #414141;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.56);
+      display: grid;
+      gap: 9px;
+    }
+
+    span {
+      color: #8d93cb;
+      font: 700 8px/1 "ProFontWindows", monospace;
+    }
+
+    strong {
+      font-size: 18px;
+    }
+
+    p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 839px) {
+  .about-static {
+    grid-template-columns: 1fr;
   }
 }
 </style>

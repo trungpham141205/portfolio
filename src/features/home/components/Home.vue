@@ -12,7 +12,6 @@ import { three } from "../../../three";
 import { animations } from "../../../animations";
 import HeaderHome from "../../../components/HeaderHome.vue";
 import { preloaderVisible } from "../../../composables/usePreloader";
-import ScrollIcon from "../../../components/ScrollIcon.vue";
 import { raycast } from "../../../three/utils/raycast";
 import gsap from "gsap";
 import { useAgent } from "../../../composables/useAgent";
@@ -21,6 +20,8 @@ import { isTransitioning } from "../../../composables/useProjectTransition";
 import { renderer } from "../../../three/core/renderer";
 import CosmicBackdrop from "../../../components/CosmicBackdrop.vue";
 import SignalTicker from "../../../components/SignalTicker.vue";
+import SignalRail from "../../../components/SignalRail.vue";
+import LogicPipeline from "./LogicPipeline.vue";
 
 const introRef = ref<HTMLElement | null>(null);
 const stickyObserver = ref<IntersectionObserver | null>(null);
@@ -144,7 +145,6 @@ watch(
     ]"
   >
     <CosmicBackdrop />
-    <ScrollIcon />
     <Layout>
       <div class="intro-wrapper" ref="introRef">
         <div
@@ -162,6 +162,7 @@ watch(
         <div class="about-spacer" ref="aboutSpacerRef" id="about"></div>
       </div>
       <SignalTicker />
+      <LogicPipeline />
       <Projects id="projects" @loaded="handleProjectsLoaded" />
       <Labs id="lab" />
       <div ref="contactRef" class="home-contact">
@@ -170,6 +171,7 @@ watch(
       <Footer :withSocial="false"></Footer>
     </Layout>
   </div>
+  <SignalRail v-if="projectsLoaded" />
   <HeaderHome v-if="projectsLoaded" />
 </template>
 
@@ -235,6 +237,18 @@ watch(
 .about-spacer {
   max-height: calc(var(--lvh) * 250);
   min-height: calc(var(--lvh) * 250);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-wrapper-out,
+  .home-wrapper-in {
+    animation: none;
+  }
+
+  .about-spacer {
+    min-height: calc(var(--lvh) * 100);
+    max-height: calc(var(--lvh) * 100);
+  }
 }
 
 .intro-wrapper {

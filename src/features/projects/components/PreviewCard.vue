@@ -16,7 +16,11 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-  if (!card.value || ScrollTrigger.isInViewport(card.value)) return;
+  if (
+    !card.value ||
+    ScrollTrigger.isInViewport(card.value) ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) return;
   timeline.value = gsap
     .timeline({ scrollTrigger: { trigger: card.value, start: "top 92%" } })
     .fromTo(card.value, { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "power3.out" });
@@ -60,15 +64,16 @@ onUnmounted(() => timeline.value?.kill());
   color: var(--color-text-400);
 
   article {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr);
+    gap: 0;
     height: 100%;
-    padding: clamp(14px, 2.1vw, 28px);
+    padding: 0;
     border: 1px solid #4d4d4d;
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.46);
     backdrop-filter: blur(4px);
+    overflow: hidden;
     transition:
       border-color 0.3s ease,
       background-color 0.3s ease;
@@ -76,21 +81,31 @@ onUnmounted(() => timeline.value?.kill());
 
   &-top {
     position: relative;
+    min-height: clamp(320px, 43vw, 560px);
+    padding: clamp(14px, 2vw, 26px);
+    border-right: 1px solid #3a3a3a;
+    display: flex;
+    align-items: stretch;
     transition: transform 0.45s var(--ease-smooth);
+
+    > :first-child {
+      width: 100%;
+    }
   }
 
   &-index,
   &-open {
     position: absolute;
     z-index: 3;
-    bottom: 12px;
+    top: 14px;
+    bottom: auto;
     border: 1px solid var(--color-grayscale-500);
     background: rgba(0, 0, 0, 0.72);
     backdrop-filter: blur(8px);
   }
 
   &-index {
-    left: 12px;
+    left: 14px;
     padding: 6px 10px;
     border-radius: 500px;
     color: var(--color-text-300);
@@ -98,7 +113,7 @@ onUnmounted(() => timeline.value?.kill());
   }
 
   &-open {
-    right: 12px;
+    right: 14px;
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -111,11 +126,16 @@ onUnmounted(() => timeline.value?.kill());
   }
 
   &-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: var(--space-md);
-    padding-bottom: var(--space-lg);
-    border-bottom: 1px solid var(--color-grayscale-500);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(22px, 3vw, 42px);
+    padding: clamp(24px, 3.2vw, 50px);
+
+    > div:first-child {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #353535;
+    }
   }
 
   &-category {
@@ -127,19 +147,20 @@ onUnmounted(() => timeline.value?.kill());
   }
 
   &-title {
-    font-size: clamp(21px, 2.4vw, 31px);
-    line-height: 1;
-    letter-spacing: -0.025em;
+    max-width: 12ch;
+    font-size: clamp(28px, 3.2vw, 52px);
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
   }
 
   &-description {
     color: var(--color-gray-400);
-    font-size: var(--font-size-sm);
-    line-height: 1.35;
+    font-size: clamp(15px, 1.45vw, 19px);
+    line-height: 1.48;
   }
 
   &-tags {
-    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
@@ -163,7 +184,7 @@ onUnmounted(() => timeline.value?.kill());
       }
 
       .preview-card-top {
-        transform: translateY(-6px);
+        transform: scale(0.985);
       }
 
       .preview-card-open {
@@ -173,15 +194,49 @@ onUnmounted(() => timeline.value?.kill());
       }
     }
   }
+
+  &:nth-child(even) {
+    .preview-card-top {
+      order: 2;
+      border-right: 0;
+      border-left: 1px solid #3a3a3a;
+    }
+
+    .preview-card-content {
+      order: 1;
+    }
+  }
 }
 
-@media (max-width: 620px) {
-  .preview-card-content {
+@media (max-width: 839px) {
+  .preview-card article {
     grid-template-columns: 1fr;
   }
 
-  .preview-card-tags {
-    grid-column: 1;
+  .preview-card-top {
+    min-height: clamp(270px, 82vw, 430px);
+    border-right: 0;
+    border-bottom: 1px solid #3a3a3a;
+  }
+
+  .preview-card:nth-child(even) {
+    .preview-card-top {
+      order: 1;
+      border-left: 0;
+      border-bottom: 1px solid #3a3a3a;
+    }
+
+    .preview-card-content {
+      order: 2;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-card article,
+  .preview-card-top,
+  .preview-card-open {
+    transition: none;
   }
 }
 </style>
