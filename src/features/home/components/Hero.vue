@@ -94,11 +94,11 @@ const scrollTo = (target: string) => {
     transform-origin: left center;
 
     @include mixins.mq("md") {
-      grid-column: 1 / 9;
+      grid-column: 1 / 7;
     }
 
     @include mixins.mq("lg") {
-      grid-column: 2 / 9;
+      grid-column: 2 / 7;
     }
   }
 
@@ -107,7 +107,7 @@ const scrollTo = (target: string) => {
     letter-spacing: -0.065em;
     line-height: 0.76;
     text-transform: uppercase;
-    font-size: clamp(66px, 10.5vw, 170px);
+    font-size: clamp(62px, 7.4vw, 124px);
 
     span {
       display: block;
@@ -115,7 +115,7 @@ const scrollTo = (target: string) => {
       &:last-child {
         color: transparent;
         -webkit-text-stroke: 1px rgba(255, 255, 255, 0.72);
-        transform: translateX(clamp(22px, 8vw, 130px));
+        transform: translateX(clamp(18px, 3vw, 58px));
       }
     }
   }
@@ -149,7 +149,7 @@ const scrollTo = (target: string) => {
   &-role {
     width: fit-content;
     margin-top: clamp(18px, 3.4vh, 38px);
-    margin-left: clamp(22px, 8vw, 130px);
+    margin-left: clamp(18px, 3vw, 58px);
     padding: 7px 13px;
     border: 1px solid #4d4d4d;
     border-radius: 500px;

@@ -122,7 +122,7 @@ watchEffect((onInvalidate) => {
     z-index: 2;
     top: calc(var(--height-header) + 28px);
     left: var(--space-outer);
-    max-width: min(580px, calc(100% - var(--space-outer) * 2));
+    max-width: min(460px, calc(100% - var(--space-outer) * 2));
     display: grid;
     gap: 12px;
     pointer-events: none;
@@ -139,7 +139,7 @@ watchEffect((onInvalidate) => {
 
     h2 {
       font-family: "Urbanist", sans-serif;
-      font-size: clamp(30px, 4.2vw, 62px);
+      font-size: clamp(30px, 3.5vw, 52px);
       line-height: 0.95;
       letter-spacing: -0.045em;
       text-transform: uppercase;

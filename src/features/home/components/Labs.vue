@@ -23,10 +23,41 @@ const result = computed(() => {
   return valueA.value + valueB.value;
 });
 const outputBits = computed(() => [4, 3, 2, 1, 0].map((bit) => (result.value >> bit) & 1));
+const resultNibble = computed(() => result.value & 0xf);
+const carryFlag = computed(() => Number(result.value > 0xf));
+const zeroFlag = computed(() => Number(resultNibble.value === 0));
+const operationSymbol = computed(() => ({ AND: "&", OR: "|", XOR: "^", ADD: "+" })[operation.value]);
+const aluExpression = computed(() => `${valueA.value} ${operationSymbol.value} ${valueB.value} = ${resultNibble.value}`);
 
 const toggleBit = (target: "a" | "b", index: number) => {
   const bits = target === "a" ? bitsA.value : bitsB.value;
   bits[index] = bits[index] ? 0 : 1;
+};
+
+const setBits = (target: "a" | "b", value: number) => {
+  const bits = [0, 1, 2, 3].map((bit) => (value >> bit) & 1);
+  if (target === "a") bitsA.value = bits;
+  else bitsB.value = bits;
+};
+
+const loadAluPreset = (preset: "zero" | "max" | "sum") => {
+  if (preset === "zero") {
+    setBits("a", 0);
+    setBits("b", 0);
+    operation.value = "XOR";
+    return;
+  }
+
+  if (preset === "max") {
+    setBits("a", 15);
+    setBits("b", 15);
+    operation.value = "ADD";
+    return;
+  }
+
+  setBits("a", 5);
+  setBits("b", 3);
+  operation.value = "ADD";
 };
 
 const states = [
@@ -38,10 +69,18 @@ const states = [
 const stateIndex = ref(0);
 const counter = ref(0);
 const running = ref(true);
+const cycle = ref(0);
 const currentState = computed(() => states[stateIndex.value]!);
+const nextStateIndex = computed(() => {
+  if (counter.value + 1 < currentState.value.limit) return stateIndex.value;
+  return stateIndex.value === 3 ? 1 : stateIndex.value + 1;
+});
+const nextState = computed(() => states[nextStateIndex.value]!);
+const stateProgress = computed(() => Math.round((counter.value / currentState.value.limit) * 100));
 
-const advanceFsm = () => {
-  if (!running.value) return;
+const advanceFsm = (force = false) => {
+  if (!running.value && !force) return;
+  cycle.value += 1;
   counter.value += 1;
   if (counter.value < currentState.value.limit) return;
   counter.value = 0;
@@ -54,6 +93,7 @@ onUnmounted(() => window.clearInterval(timer));
 const resetFsm = () => {
   stateIndex.value = 0;
   counter.value = 0;
+  cycle.value = 0;
   running.value = true;
 };
 
@@ -155,16 +195,21 @@ endmodule`;
 
       <div class="labs-bench">
         <div class="labs-bench-topline">
-          <span><i></i> SIMULATION ACTIVE</span>
+          <span><i :class="{ paused: activeLab === 'fsm' && !running }"></i> {{ activeLab === "fsm" && !running ? "SIMULATION PAUSED" : "SIMULATION ACTIVE" }}</span>
+          <span class="labs-cycle">{{ activeLab === "alu" ? "COMBINATIONAL / LIVE" : `CYCLE / ${String(cycle).padStart(4, "0")}` }}</span>
           <div class="labs-view-switch" role="tablist" aria-label="Lab view">
-            <button :class="{ active: activeView === 'logic' }" @click="activeView = 'logic'">LOGIC</button>
-            <button :class="{ active: activeView === 'source' }" @click="activeView = 'source'">SOURCE</button>
+            <button role="tab" :aria-selected="activeView === 'logic'" :class="{ active: activeView === 'logic' }" @click="activeView = 'logic'">LOGIC</button>
+            <button role="tab" :aria-selected="activeView === 'source'" :class="{ active: activeView === 'source' }" @click="activeView = 'source'">SOURCE</button>
           </div>
         </div>
 
         <template v-if="activeLab === 'alu'">
           <div v-if="activeView === 'logic'" class="alu-panel">
             <div class="alu-inputs">
+              <div class="alu-presets" aria-label="ALU test presets">
+                <span>TEST VECTORS</span>
+                <div><button type="button" @click="loadAluPreset('zero')">ZERO</button><button type="button" @click="loadAluPreset('max')">CARRY</button><button type="button" @click="loadAluPreset('sum')">5 + 3</button></div>
+              </div>
               <div v-for="(bits, group) in { a: bitsA, b: bitsB }" :key="group" class="bit-bank">
                 <div class="bit-bank-title">
                   <span>INPUT {{ String(group).toUpperCase() }} [3:0]</span>
@@ -208,6 +253,10 @@ endmodule`;
             </div>
 
             <div class="alu-output">
+              <div class="alu-expression" role="status">
+                <span>LIVE EXPRESSION</span>
+                <strong>{{ aluExpression }}</strong>
+              </div>
               <div class="alu-output-leds" role="status" :aria-label="`ALU result ${result}`">
                 <div v-for="(bit, index) in outputBits" :key="index">
                   <i :class="{ on: bit }"></i>
@@ -215,9 +264,15 @@ endmodule`;
                 </div>
               </div>
               <div class="alu-output-value">
-                <span>BIN / {{ outputBits.join("") }}</span>
-                <strong>DEC / {{ result }}</strong>
+                <span>BIN / {{ outputBits.slice(1).join("") }}</span>
+                <strong>DEC / {{ resultNibble }}</strong>
               </div>
+              <div class="alu-flags"><span>C / <b>{{ carryFlag }}</b></span><span>Z / <b>{{ zeroFlag }}</b></span></div>
+            </div>
+            <div class="signal-scope alu-scope" aria-label="Live ALU signal trace">
+              <div><span>A[3:0]</span><i :style="{ '--signal-value': `${valueA}` }"></i><b>{{ valueA.toString(2).padStart(4, "0") }}</b></div>
+              <div><span>B[3:0]</span><i :style="{ '--signal-value': `${valueB}` }"></i><b>{{ valueB.toString(2).padStart(4, "0") }}</b></div>
+              <div><span>Y[3:0]</span><i class="result-trace" :style="{ '--signal-value': `${resultNibble}` }"></i><b>{{ resultNibble.toString(2).padStart(4, "0") }}</b></div>
             </div>
           </div>
           <pre v-else class="source-panel"><code>{{ aluCode }}</code></pre>
@@ -242,11 +297,21 @@ endmodule`;
               </div>
               <div class="fsm-readout">
                 <p><span>STATE REG</span><strong>{{ currentState.name }}</strong></p>
+                <p><span>NEXT STATE</span><strong>{{ nextState.name }}</strong></p>
                 <p><span>COUNTER</span><strong>{{ String(counter).padStart(2, "0") }}</strong></p>
                 <div>
-                  <button @click="running = !running">{{ running ? "PAUSE CLK" : "RUN CLK" }}</button>
-                  <button @click="resetFsm">RSTN</button>
+                  <button type="button" @click="running = !running">{{ running ? "PAUSE CLK" : "RUN CLK" }}</button>
+                  <button type="button" @click="advanceFsm(true)">STEP CLK</button>
+                  <button type="button" @click="resetFsm">RSTN</button>
                 </div>
+              </div>
+              <div class="fsm-progress" :style="{ '--state-progress': `${stateProgress}%` }">
+                <span>STATE WINDOW / {{ stateProgress }}%</span><i></i><b>{{ counter }} / {{ currentState.limit }}</b>
+              </div>
+              <div class="signal-scope fsm-scope" aria-label="Live FSM signal trace">
+                <div><span>CLK</span><i class="clock-trace" :class="{ paused: !running }"></i><b>1 HZ</b></div>
+                <div><span>STATE</span><i :style="{ '--signal-value': `${stateIndex}` }"></i><b>{{ stateIndex.toString(2).padStart(2, "0") }}</b></div>
+                <div><span>LIGHT</span><i class="light-trace" :class="currentState.light"></i><b>{{ currentState.light.toUpperCase() }}</b></div>
               </div>
             </div>
           </div>
@@ -406,8 +471,23 @@ endmodule`;
           border-radius: 50%;
           background: #8ef5bd;
           box-shadow: 0 0 12px #8ef5bd;
+
+          &.paused {
+            background: #ffd45c;
+            box-shadow: 0 0 12px rgba(255, 212, 92, 0.72);
+          }
         }
       }
+    }
+  }
+
+  &-cycle {
+    display: none !important;
+    color: #686d9f;
+    font-family: "ProFontWindows", monospace;
+
+    @include mixins.mq("sm") {
+      display: block !important;
     }
   }
 
@@ -442,10 +522,58 @@ endmodule`;
   }
 }
 
+.alu-presets {
+  display: grid;
+  gap: 9px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #303030;
+
+  > span {
+    color: #6d7092;
+    font: 700 8px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.14em;
+  }
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  button {
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid #414141;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.025);
+    color: #909090;
+    font: 700 8px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.08em;
+  }
+}
+
 .alu-inputs,
 .alu-core,
 .alu-output {
   padding: clamp(22px, 3vw, 42px);
+}
+
+.alu-expression {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #303030;
+
+  span {
+    color: #6d7092;
+    font: 700 8px/1 "Urbanist", sans-serif;
+    letter-spacing: 0.14em;
+  }
+
+  strong {
+    color: #fff;
+    font: 700 clamp(24px, 2.4vw, 38px)/1 "ProFontWindows", monospace;
+  }
 }
 
 .alu-inputs {
@@ -628,6 +756,69 @@ endmodule`;
   }
 }
 
+.alu-flags {
+  display: flex;
+  gap: 8px;
+
+  span {
+    padding: 7px 10px;
+    border: 1px solid #3c3f58;
+    border-radius: 4px;
+    color: #777b98;
+    font: 700 9px/1 "ProFontWindows", monospace;
+  }
+
+  b {
+    color: #fff;
+  }
+}
+
+.signal-scope {
+  border-top: 1px solid var(--color-grayscale-500);
+  background: rgba(5, 6, 11, 0.88);
+
+  > div {
+    min-height: 42px;
+    padding: 0 14px;
+    display: grid;
+    grid-template-columns: 72px 1fr 72px;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  }
+
+  span,
+  b {
+    color: #73758b;
+    font: 700 8px/1 "ProFontWindows", monospace;
+    letter-spacing: 0.1em;
+  }
+
+  b {
+    color: #cfd2f5;
+    text-align: right;
+  }
+
+  i {
+    --signal-color: #7379ad;
+    position: relative;
+    height: 20px;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, transparent 0 5%, var(--signal-color) 5% 6%, transparent 6% 18%, var(--signal-color) 18% 19%, transparent 19% 35%, var(--signal-color) 35% 36%, transparent 36% 52%, var(--signal-color) 52% 53%, transparent 53% 72%, var(--signal-color) 72% 73%, transparent 73%),
+      linear-gradient(var(--signal-color), var(--signal-color)) left 40% / 100% 1px no-repeat;
+    opacity: 0.68;
+  }
+
+  .result-trace {
+    --signal-color: #aeb3e5;
+  }
+}
+
+.alu-scope {
+  grid-column: 1 / -1;
+}
+
 .fsm-panel {
   min-height: 557px;
   display: grid;
@@ -686,7 +877,7 @@ endmodule`;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 48px;
+  gap: 22px;
 }
 
 .fsm-states {
@@ -738,7 +929,7 @@ endmodule`;
 
 .fsm-readout {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr auto;
   border: 1px solid #3d3d3d;
   border-radius: 6px;
   overflow: hidden;
@@ -778,6 +969,56 @@ endmodule`;
     padding: 8px 10px;
     font-size: 8px;
     font-weight: 700;
+
+    &:focus-visible {
+      outline: 2px solid #aeb3e5;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.fsm-progress {
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  color: #73758b;
+  font: 700 8px/1 "ProFontWindows", monospace;
+  letter-spacing: 0.1em;
+
+  i {
+    height: 3px;
+    background: linear-gradient(to right, #aeb3e5 var(--state-progress), #292a35 var(--state-progress));
+    box-shadow: 0 0 16px rgba(174, 179, 229, 0.24);
+  }
+
+  b {
+    color: #cfd2f5;
+  }
+}
+
+.fsm-scope {
+  border: 1px solid #30303a;
+  border-bottom: 0;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .clock-trace {
+    --signal-color: #d9dcff;
+    animation: trace-shift 1s steps(2) infinite;
+
+    &.paused {
+      animation-play-state: paused;
+      opacity: 0.3;
+    }
+  }
+
+  .light-trace {
+    --signal-color: #ff5364;
+
+    &.yellow { --signal-color: #ffd45c; }
+    &.green { --signal-color: #65ee9a; }
   }
 }
 
@@ -794,6 +1035,10 @@ endmodule`;
 
 @keyframes clock {
   50% { opacity: 0.15; }
+}
+
+@keyframes trace-shift {
+  to { transform: translateX(10px); }
 }
 
 @media (max-width: 839px) {
@@ -825,10 +1070,20 @@ endmodule`;
       border-top: 1px solid #3d3d3d;
     }
   }
+
+  .fsm-progress {
+    grid-template-columns: 1fr auto;
+
+    i {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .clock-pulse i {
+  .clock-pulse i,
+  .fsm-scope .clock-trace {
     animation: none;
   }
 }
