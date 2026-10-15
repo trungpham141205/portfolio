@@ -15,3 +15,9 @@ Permission is hereby granted to use, copy, modify, and distribute this software 
 3. Commercial use, resale, or redistribution of this project or substantial portions of it is prohibited without prior written permission from the author.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+## Universe background (public/universe.html)
+
+- three.js (MIT), loaded from jsDelivr.
+- Planet textures: Solar System Scope, CC BY 4.0 (https://www.solarsystemscope.com/textures/).
+- Spacecraft models: NASA 3D Resources and NASA Science (https://github.com/nasa/NASA-3D-Resources).

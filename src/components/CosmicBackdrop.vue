@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// 3D universe lives in public/universe.html; ?bg hides its HUD. CSS layers below stay as the loading/reduced-motion fallback.
+const src = `${import.meta.env.BASE_URL}universe.html?bg`;
+const showUniverse = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+</script>
+
 <template>
   <div class="cosmic-backdrop" aria-hidden="true">
     <div class="cosmic-backdrop-aurora"></div>
@@ -6,6 +12,7 @@
     <div class="cosmic-backdrop-orbit cosmic-backdrop-orbit-outer"></div>
     <div class="cosmic-backdrop-orbit cosmic-backdrop-orbit-inner"></div>
     <div class="cosmic-backdrop-axis"></div>
+    <iframe v-if="showUniverse" class="cosmic-backdrop-universe" :src="src" tabindex="-1" title=""></iframe>
   </div>
 </template>
 
@@ -113,6 +120,14 @@
       animation-direction: reverse;
       animation-duration: 24s;
     }
+  }
+
+  &-universe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
 
   &-axis {
